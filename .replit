@@ -52,3 +52,6 @@ DEMO_MODE = "true"
 
 [nix]
 channel = "stable-25_05"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-76fd881c-eb1b-49be-90d9-9f7209818c84"
