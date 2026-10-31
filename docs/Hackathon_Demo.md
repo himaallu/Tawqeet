@@ -67,5 +67,9 @@ Demo path: demo login → Settings → Load demo data → Radar → Autobia (Hot
 Rewrite → Review & Send → Approve & Send → Settings → Alerts → Send test alert →
 Billing → Upgrade → Compliance → check `someone@gmail.com` (blocked) → `/welcome` EN/AR.
 
+Checks: `pnpm run check:env` (live PASS/FAIL/SKIP per service, sends one test email
+and one webhook test) and `pnpm run smoke` (the whole demo path). Real mailbox sending
+stays off unless `REAL_SEND=true` and a Gmail/Outlook mailbox is connected.
+
 Run the additive migration with `pnpm --filter @workspace/api-server exec tsx ../../scripts/migrate-demo.ts`.
 No test suite was run, per the speed-mode brief.

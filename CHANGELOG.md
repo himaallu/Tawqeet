@@ -10,6 +10,17 @@
 
 # Changelog
 
+## 2026-10-31 — Part 3: checks, integrations, mailbox sending, final audit
+
+- `.env.example` lists every variable the app reads, grouped and marked required/optional.
+- `pnpm run check:env`: missing required vars, then live PASS/FAIL/SKIP for database, AI provider, Gemini, LeadOcean, Resend (test email), alert webhook (test POST), Stripe link, HubSpot, Firecrawl, Trello, Twilio, Asana, ClickUp. Values are never printed.
+- Settings → System checks → "Run live checks" shows the same (read-only calls; no email/webhook sent).
+- `pnpm run smoke`: demo login → Load demo data → Autobia/Foodics Hot → drafts + simulation → rewrite → Approve & Send → test alert → digest → read-only share link → gmail.com blocked. Missing services are SKIP.
+- Direct Trello cards, Twilio SMS, Asana and ClickUp tasks for Hot leads when their env vars exist; Make webhook stays the default. Real status and test per channel on Settings → Alerts.
+- Gmail (gmail.send only) and Outlook (Mail.Send) OAuth with AES-256-GCM encrypted refresh tokens; Settings → Mailboxes shows redirect URIs and enables Connect when configured. `REAL_SEND=true` sends to the actual lead through the connected mailbox (approval, compliance and cap still apply).
+- `AUDIT.md` and `docs/REPLIT_DEPLOY.md`.
+- Merged the Part 2 commits that were pushed after PR #2 was merged.
+
 ## 2026-10-31 — Finish demo, part 2: operations and data rights
 
 - Worker digests (Asia/Dubai): `alerts-warm-digest` 08:30 Mon–Fri lists Warm leads not yet digested; `alerts-cold-weekly` 08:30 Monday (first UAE workday) summarises the Cold watchlist. "Send digest now" on Settings → Alerts.
