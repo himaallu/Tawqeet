@@ -12,6 +12,7 @@ import { ErrorPanel, PageHeader } from "@/components/states";
 import { can, roleLabel } from "@/lib/roles";
 import { apiErrorMessage } from "@/lib/api-error";
 import { useToast } from "@/hooks/use-toast";
+import { DemoDataCard } from "@/components/demo-data-card";
 
 const matrix: [string, boolean, boolean, boolean][] = [
   ["View and search clients", true, true, false],
@@ -66,6 +67,7 @@ export default function SettingsPage({ user }: { user: User }) {
         </section>
       )}
 
+      <DemoDataCard />
       <section className="rounded-lg border bg-card mt-6 overflow-hidden">
         <div className="px-6 py-4 border-b"><h2 className="font-display text-xl">Roles and access</h2><p className="text-sm text-muted-foreground mt-1">Client viewers get assigned clients in a later release; for now they cannot open client profiles.</p></div>
         <table className="w-full text-sm">

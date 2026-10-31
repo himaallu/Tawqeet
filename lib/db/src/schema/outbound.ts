@@ -4,6 +4,9 @@ import { agencies, clients, createdAt } from "./core";
 import { companies, signals, signalDefinitions } from "./intelligence";
 
 export const leads = pgTable("leads", {
+  demoKey: text("demo_key"),
+  sample: boolean("sample").notNull().default(false),
+  language: text("language").notNull().default("en"),
   id: uuid("id").defaultRandom().primaryKey(),
   agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
   clientId: uuid("client_id").notNull(),

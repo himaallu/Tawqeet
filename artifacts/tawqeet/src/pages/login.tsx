@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useRequestMagicLink } from "@workspace/api-client-react";
+import { useRequestMagicLink, useGetDemoStatus, getGetDemoStatusQueryKey, useDemoLogin } from "@workspace/api-client-react";
 import { ArrowRight, MailCheck, AlertTriangle, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ export default function LoginPage({ loginConfigured }: { loginConfigured: boolea
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [localErr, setLocalErr] = useState<string | null>(null);
   const req = useRequestMagicLink();
+  const demo = useGetDemoStatus({ query: { queryKey: getGetDemoStatusQueryKey(), retry: false } });
+  const demoLogin = useDemoLogin();
+  const demoOn = !!demo.data?.enabled;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -42,14 +45,25 @@ export default function LoginPage({ loginConfigured }: { loginConfigured: boolea
       <section className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm rise">
           <div className="lg:hidden mb-10"><Wordmark /></div>
-          {!loginConfigured && (
+          {demoOn && (
+            <div className="rise" data-testid="panel-demo-login">
+              <h2 className="font-display text-3xl">Demo workspace</h2>
+              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">This is a shared demo workspace. Contacts are illustrative samples, and no emails are ever sent from it. Anyone with the demo sign-in sees the same data.</p>
+              {demoLogin.isError && <p role="alert" className="mt-3 text-sm text-destructive flex gap-2"><AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />{apiErrorMessage(demoLogin.error, "Demo sign-in failed.")}</p>}
+              <Button className="mt-6 w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90" disabled={demoLogin.isPending} data-testid="button-demo-login"
+                onClick={() => demoLogin.mutate(undefined, { onSuccess: () => window.location.reload() })}>
+                {demoLogin.isPending ? "Signing in" : <>Enter demo workspace <ArrowRight className="ml-2 h-4 w-4" /></>}
+              </Button>
+            </div>
+          )}
+          {!demoOn && !loginConfigured && (
             <div className="mb-6 rounded-md border border-accent/40 bg-accent/10 p-4 text-sm flex gap-3" data-testid="status-login-unconfigured">
               <Settings2 className="h-4 w-4 text-accent shrink-0 mt-0.5" />
               <div><div className="font-medium">Sign-in is not fully configured</div>
                 <p className="text-muted-foreground mt-1">The workspace owner needs to set the email sender and owner address on the server. You can still try, but the server may refuse the request.</p></div>
             </div>
           )}
-          {sentTo ? (
+          {demoOn ? null : sentTo ? (
             <div className="rise" data-testid="status-link-sent">
               <div className="h-12 w-12 rounded-full bg-accent/15 grid place-items-center"><MailCheck className="h-5 w-5 text-accent" /></div>
               <h2 className="font-display text-3xl mt-5">Check your inbox</h2>

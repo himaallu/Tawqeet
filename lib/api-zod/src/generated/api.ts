@@ -961,3 +961,180 @@ export const ListSignalLeadsResponseItem = zod.object({
 export const ListSignalLeadsResponse = zod.array(ListSignalLeadsResponseItem)
 
 
+export const GetDemoStatusResponse = zod.object({
+  "enabled": zod.boolean(),
+  "loaded": zod.boolean(),
+  "running": zod.boolean(),
+  "stage": zod.string(),
+  "warnings": zod.array(zod.string()),
+  "error": zod.string().nullable(),
+  "geminiConfigured": zod.boolean()
+})
+
+
+export const DemoLoginResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const LoadDemoDataResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const GetDemoRadarResponse = zod.object({
+  "leads": zod.array(zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "title": zod.string(),
+  "companyName": zod.string(),
+  "country": zod.string(),
+  "clientId": zod.string(),
+  "temperature": zod.enum(['hot', 'warm', 'cold']),
+  "totalScore": zod.number().int(),
+  "signalPoints": zod.number(),
+  "stackingBonus": zod.number(),
+  "sample": zod.boolean(),
+  "language": zod.string(),
+  "signals": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "title": zod.string(),
+  "evidenceQuote": zod.string(),
+  "url": zod.string().nullable(),
+  "detectedAt": zod.string(),
+  "points": zod.number()
+})),
+  "drafts": zod.array(zod.object({
+  "id": zod.string(),
+  "variant": zod.number().int(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "language": zod.string(),
+  "score": zod.number().int().nullable(),
+  "simulation": zod.union([zod.object({
+  "personas": zod.array(zod.object({
+  "name": zod.string(),
+  "verdict": zod.string(),
+  "reason": zod.string()
+})),
+  "gmailSummary": zod.string(),
+  "applePreview": zod.string(),
+  "spamScore": zod.number().int(),
+  "spamFlags": zod.array(zod.string()),
+  "score": zod.number().int(),
+  "mode": zod.enum(['ai', 'sample']),
+  "gmailModel": zod.string(),
+  "notes": zod.array(zod.string())
+}),zod.null()]),
+  "model": zod.string()
+}))
+})),
+  "companies": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "country": zod.string(),
+  "atsProvider": zod.string().nullable(),
+  "atsSlug": zod.string().nullable(),
+  "roleCount": zod.number().int(),
+  "lastCheckedAt": zod.string().nullable(),
+  "error": zod.string().nullable()
+}))
+})
+
+
+export const RunDemoRadarResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const AddDemoSignalBody = zod.object({
+  "companyId": zod.string(),
+  "url": zod.string().url()
+})
+
+export const AddDemoSignalResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const GetDemoLeadParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetDemoLeadResponse = zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "title": zod.string(),
+  "companyName": zod.string(),
+  "country": zod.string(),
+  "clientId": zod.string(),
+  "temperature": zod.enum(['hot', 'warm', 'cold']),
+  "totalScore": zod.number().int(),
+  "signalPoints": zod.number(),
+  "stackingBonus": zod.number(),
+  "sample": zod.boolean(),
+  "language": zod.string(),
+  "signals": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "title": zod.string(),
+  "evidenceQuote": zod.string(),
+  "url": zod.string().nullable(),
+  "detectedAt": zod.string(),
+  "points": zod.number()
+})),
+  "drafts": zod.array(zod.object({
+  "id": zod.string(),
+  "variant": zod.number().int(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "language": zod.string(),
+  "score": zod.number().int().nullable(),
+  "simulation": zod.union([zod.object({
+  "personas": zod.array(zod.object({
+  "name": zod.string(),
+  "verdict": zod.string(),
+  "reason": zod.string()
+})),
+  "gmailSummary": zod.string(),
+  "applePreview": zod.string(),
+  "spamScore": zod.number().int(),
+  "spamFlags": zod.array(zod.string()),
+  "score": zod.number().int(),
+  "mode": zod.enum(['ai', 'sample']),
+  "gmailModel": zod.string(),
+  "notes": zod.array(zod.string())
+}),zod.null()]),
+  "model": zod.string()
+}))
+})
+
+
+export const GenerateDemoDraftsParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GenerateDemoDraftsResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const SimulateDemoDraftParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const SimulateDemoDraftResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const RewriteDemoDraftParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RewriteDemoDraftResponse = zod.object({
+  "message": zod.string()
+})
+
+

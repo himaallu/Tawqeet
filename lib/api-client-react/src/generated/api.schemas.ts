@@ -5,6 +5,112 @@
  * Tawqeet foundation API
  * OpenAPI spec version: 0.1.0
  */
+export interface DemoStatus {
+  enabled: boolean;
+  loaded: boolean;
+  running: boolean;
+  stage: string;
+  warnings: string[];
+  /** @nullable */
+  error: string | null;
+  geminiConfigured: boolean;
+}
+
+export type InboxSimulationPersonasItem = {
+  name: string;
+  verdict: string;
+  reason: string;
+};
+
+export type InboxSimulationMode = typeof InboxSimulationMode[keyof typeof InboxSimulationMode];
+
+
+export const InboxSimulationMode = {
+  ai: 'ai',
+  sample: 'sample',
+} as const;
+
+export interface InboxSimulation {
+  personas: InboxSimulationPersonasItem[];
+  gmailSummary: string;
+  applePreview: string;
+  spamScore: number;
+  spamFlags: string[];
+  score: number;
+  mode: InboxSimulationMode;
+  gmailModel: string;
+  notes: string[];
+}
+
+export interface DemoDraft {
+  id: string;
+  variant: number;
+  subject: string;
+  body: string;
+  language: string;
+  /** @nullable */
+  score: number | null;
+  simulation: InboxSimulation | null;
+  model: string;
+}
+
+export type DemoLeadTemperature = typeof DemoLeadTemperature[keyof typeof DemoLeadTemperature];
+
+
+export const DemoLeadTemperature = {
+  hot: 'hot',
+  warm: 'warm',
+  cold: 'cold',
+} as const;
+
+export interface DemoEvidence {
+  id: string;
+  name: string;
+  title: string;
+  evidenceQuote: string;
+  /** @nullable */
+  url: string | null;
+  detectedAt: string;
+  points: number;
+}
+
+export interface DemoLead {
+  id: string;
+  fullName: string;
+  title: string;
+  companyName: string;
+  country: string;
+  clientId: string;
+  temperature: DemoLeadTemperature;
+  totalScore: number;
+  signalPoints: number;
+  stackingBonus: number;
+  sample: boolean;
+  language: string;
+  signals: DemoEvidence[];
+  drafts: DemoDraft[];
+}
+
+export type DemoRadarCompaniesItem = {
+  id: string;
+  name: string;
+  country: string;
+  /** @nullable */
+  atsProvider: string | null;
+  /** @nullable */
+  atsSlug: string | null;
+  roleCount: number;
+  /** @nullable */
+  lastCheckedAt: string | null;
+  /** @nullable */
+  error: string | null;
+};
+
+export interface DemoRadar {
+  leads: DemoLead[];
+  companies: DemoRadarCompaniesItem[];
+}
+
 export type SignalDefinitionInputVerticalMultipliers = {
   /**
      * @minimum 0
@@ -416,5 +522,10 @@ vertical?: string;
 export type ListSignalDefinitions200 = {
   count: number;
   definitions: SignalDefinition[];
+};
+
+export type AddDemoSignalBody = {
+  companyId: string;
+  url: string;
 };
 

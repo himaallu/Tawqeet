@@ -40,7 +40,7 @@ export const loadSession: RequestHandler = async (req, _res, next) => {
     const [row] = await db.select({ id: users.id, agencyId: users.agencyId, email: users.email, role: users.role })
       .from(sessions).innerJoin(users, and(eq(users.id, sessions.userId), eq(users.agencyId, sessions.agencyId)))
       .where(and(eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date()))).limit(1);
-    req.user = row;
+    req.user = row?.email === "demo@tawqeet.invalid" && process.env.DEMO_MODE !== "true" ? undefined : row;
   }
   next();
 };

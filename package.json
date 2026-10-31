@@ -6,7 +6,7 @@
     "dev": "node scripts/dev.mjs",
     "worker": "pnpm --filter @workspace/api-server run worker",
     "start": "node scripts/start.mjs",
-    "db:migrate": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/api-server run brain:install && pnpm --filter @workspace/api-server run signals:seed",
+    "db:migrate": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/api-server run brain:install && pnpm --filter @workspace/api-server run signals:seed && pnpm --filter @workspace/api-server exec tsx ../../scripts/migrate-demo.ts",
     "db:seed": "pnpm --filter @workspace/api-server run seed",
     "lint": "pnpm run typecheck",
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",

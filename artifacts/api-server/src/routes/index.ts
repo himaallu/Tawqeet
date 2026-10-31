@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import demoRouter from "./demo";
 import healthRouter from "./health";
 import authRouter from "./auth";
 import agencyRouter from "./agency";
@@ -16,5 +17,6 @@ router.use(clientsRouter);
 router.use(brainRouter);
 router.use(systemRouter);
 router.use(signalSettingsRouter);
+router.use(demoRouter);
 
 export default router;

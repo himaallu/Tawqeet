@@ -47,5 +47,8 @@ RESEND_FROM_EMAIL = "auth@tuezdayai.com"
 AI_MODEL = "claude-sonnet-4-5"
 AI_PROVIDER = "anthropic"
 
+[userenv.development]
+DEMO_MODE = "true"
+
 [nix]
 channel = "stable-25_05"

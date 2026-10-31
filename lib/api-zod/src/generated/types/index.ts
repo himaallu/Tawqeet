@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './addDemoSignalBody';
 export * from './agency';
 export * from './agencyInput';
 export * from './brainCaseStudy';
@@ -31,8 +32,18 @@ export * from './clientInput';
 export * from './clientInputIcp';
 export * from './configCheck';
 export * from './configCheckCategory';
+export * from './demoDraft';
+export * from './demoEvidence';
+export * from './demoLead';
+export * from './demoLeadTemperature';
+export * from './demoRadar';
+export * from './demoRadarCompaniesItem';
+export * from './demoStatus';
 export * from './getBrainLearningsParams';
 export * from './healthStatus';
+export * from './inboxSimulation';
+export * from './inboxSimulationMode';
+export * from './inboxSimulationPersonasItem';
 export * from './linkVerificationInput';
 export * from './listSignalDefinitions200';
 export * from './magicLinkInput';

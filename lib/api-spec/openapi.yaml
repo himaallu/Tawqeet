@@ -346,8 +346,216 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/SignalLead" }
+  /demo/status:
+    get:
+      operationId: getDemoStatus
+      responses:
+        "200":
+          description: Demo mode and background progress
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoStatus" }
+  /demo/login:
+    post:
+      operationId: demoLogin
+      responses:
+        "200":
+          description: Demo session created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /demo/load:
+    post:
+      operationId: loadDemoData
+      responses:
+        "202":
+          description: Loading demo data
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /demo/radar:
+    get:
+      operationId: getDemoRadar
+      responses:
+        "200":
+          description: Radar companies and scored leads
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoRadar" }
+  /demo/radar/run:
+    post:
+      operationId: runDemoRadar
+      responses:
+        "202":
+          description: Radar started
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /demo/signals:
+    post:
+      operationId: addDemoSignal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [companyId, url]
+              properties:
+                companyId: { type: string }
+                url: { type: string, format: uri }
+      responses:
+        "202":
+          description: Reading source
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /demo/leads/{id}:
+    get:
+      operationId: getDemoLead
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Lead, evidence and drafts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoLead" }
+  /demo/leads/{id}/drafts:
+    post:
+      operationId: generateDemoDrafts
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "202":
+          description: Draft generation started
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /demo/drafts/{id}/simulate:
+    post:
+      operationId: simulateDemoDraft
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "202":
+          description: Simulation started
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /demo/drafts/{id}/rewrite:
+    post:
+      operationId: rewriteDemoDraft
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "202":
+          description: Rewrite and re-score started
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
 components:
   schemas:
+    DemoStatus:
+      type: object
+      required: [enabled, loaded, running, stage, warnings, error, geminiConfigured]
+      properties:
+        enabled: { type: boolean }
+        loaded: { type: boolean }
+        running: { type: boolean }
+        stage: { type: string }
+        warnings: { type: array, items: { type: string } }
+        error: { type: string, nullable: true }
+        geminiConfigured: { type: boolean }
+    InboxSimulation:
+      type: object
+      required: [personas, gmailSummary, applePreview, spamScore, spamFlags, score, mode, gmailModel, notes]
+      properties:
+        personas:
+          type: array
+          items:
+            type: object
+            required: [name, verdict, reason]
+            properties:
+              name: { type: string }
+              verdict: { type: string }
+              reason: { type: string }
+        gmailSummary: { type: string }
+        applePreview: { type: string }
+        spamScore: { type: integer }
+        spamFlags: { type: array, items: { type: string } }
+        score: { type: integer }
+        mode: { type: string, enum: [ai, sample] }
+        gmailModel: { type: string }
+        notes: { type: array, items: { type: string } }
+    DemoDraft:
+      type: object
+      required: [id, variant, subject, body, language, score, simulation, model]
+      properties:
+        id: { type: string }
+        variant: { type: integer }
+        subject: { type: string }
+        body: { type: string }
+        language: { type: string }
+        score: { type: integer, nullable: true }
+        simulation:
+          allOf: [{ $ref: "#/components/schemas/InboxSimulation" }]
+          nullable: true
+        model: { type: string }
+    DemoLead:
+      type: object
+      required: [id, fullName, title, companyName, country, clientId, temperature, totalScore, signalPoints, stackingBonus, sample, language, signals, drafts]
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        title: { type: string }
+        companyName: { type: string }
+        country: { type: string }
+        clientId: { type: string }
+        temperature: { type: string, enum: [hot, warm, cold] }
+        totalScore: { type: integer }
+        signalPoints: { type: number }
+        stackingBonus: { type: number }
+        sample: { type: boolean }
+        language: { type: string }
+        signals:
+          type: array
+          items: { $ref: "#/components/schemas/DemoEvidence" }
+        drafts:
+          type: array
+          items: { $ref: "#/components/schemas/DemoDraft" }
+    DemoEvidence:
+      type: object
+      required: [id, name, title, evidenceQuote, url, detectedAt, points]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        title: { type: string }
+        evidenceQuote: { type: string }
+        url: { type: string, nullable: true }
+        detectedAt: { type: string }
+        points: { type: number }
+    DemoRadar:
+      type: object
+      required: [leads, companies]
+      properties:
+        leads:
+          type: array
+          items: { $ref: "#/components/schemas/DemoLead" }
+        companies:
+          type: array
+          items:
+            type: object
+            required: [id, name, country, atsProvider, atsSlug, roleCount, lastCheckedAt, error]
+            properties:
+              id: { type: string }
+              name: { type: string }
+              country: { type: string }
+              atsProvider: { type: string, nullable: true }
+              atsSlug: { type: string, nullable: true }
+              roleCount: { type: integer }
+              lastCheckedAt: { type: string, nullable: true }
+              error: { type: string, nullable: true }
     SignalDefinitionInput:
       type: object
       required: [baseWeight, halfLifeDays, verticalMultipliers, keywordsEn, keywordsAr, active]

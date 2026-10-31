@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { apiErrorMessage } from "@/lib/api-error";
 
 const soon = [
-  { label: "Radar", icon: Radar },
   { label: "Review & Send", icon: Send },
   { label: "Plays", icon: Layers },
 ];
@@ -59,6 +58,7 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
             <span className="ml-auto rounded-sm border border-sidebar-foreground/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider">Soon</span>
           </div>
         ))}
+        {item("/radar", "Radar", Radar, "nav-radar")}
         {perms.viewSignals && item("/leads", "Leads", Users, "nav-leads")}
         {item("/clients", "Clients", Building2, "nav-clients", active("/clients") && !inBrain)}
         {item(clientId ? `/clients/${clientId}/brain` : "/clients", "Brain", Brain, "nav-brain", inBrain)}

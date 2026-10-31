@@ -8,14 +8,15 @@ import { db, aiUsage, clients } from "@workspace/db";
 
 export async function generateForAgency<T>(input: {
   agencyId: string; clientId?: string; purpose: string; prompt: string; schema: z.ZodType<T>;
+  provider?: "anthropic" | "gemini" | "openai"; model?: string;
 }): Promise<T> {
   if (input.clientId) {
     const [client] = await db.select({ id: clients.id }).from(clients)
       .where(and(eq(clients.id, input.clientId), eq(clients.agencyId, input.agencyId))).limit(1);
     if (!client) throw new Error("Client not found in agency.");
   }
-  const provider = process.env.AI_PROVIDER || (process.env.GEMINI_API_KEY ? "gemini" : process.env.ANTHROPIC_API_KEY ? "anthropic" : "openai");
-  const modelName = process.env.AI_MODEL;
+  const provider = input.provider || process.env.AI_PROVIDER || (process.env.GEMINI_API_KEY ? "gemini" : process.env.ANTHROPIC_API_KEY ? "anthropic" : "openai");
+  const modelName = input.model || process.env.AI_MODEL;
   if (!modelName) throw new Error("Configure AI_MODEL before using AI.");
   const key = provider === "gemini" ? process.env.GEMINI_API_KEY : provider === "anthropic" ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY;
   if (!key) throw new Error(`No API key configured for AI provider ${provider}.`);

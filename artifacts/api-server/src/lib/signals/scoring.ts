@@ -65,11 +65,13 @@ export async function leadEvidence(agencyId?: string, conn: SignalDb = db, persi
       }));
     // Sum full precision; display rounding must not change thermometer arithmetic.
     const points = eligible.reduce((sum, { signal, definition }) => sum + decayedPoints(definition, signal.detectedAt, vertical, now), 0);
-    const score = cappedScore(points, lead.fitScore);
+    const distinct = new Set(eligible.filter(({signal, definition}) => decayedPoints(definition, signal.detectedAt, vertical, now) > 0).map(e => e.definition.key)).size;
+    const stackingBonus = Math.min(10, Math.max(0, distinct - 1) * 5);
+    const score = cappedScore(points + stackingBonus, lead.fitScore);
     if (persist) await conn.update(leads).set({ tempScore: score.totalScore,
       temperature: score.totalScore >= 70 ? "hot" : score.totalScore >= 35 ? "warm" : "cold" })
       .where(and(eq(leads.id, lead.id), eq(leads.agencyId, lead.agencyId)));
-    result.push({ id: lead.id, fullName: lead.fullName, companyName: company.name, clientName: client.name, ...score, signals: matched });
+    result.push({ id: lead.id, fullName: lead.fullName, companyName: company.name, clientName: client.name, ...score, stackingBonus, signals: matched });
   }
   return result;
 }

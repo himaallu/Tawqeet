@@ -86,6 +86,7 @@ export const signalDefinitions = pgTable("signal_definitions", {
   check("signal_scope_valid", sql`${t.scope} in ('company','industry')`)]);
 
 export const companies = pgTable("companies", {
+  radarMeta: jsonb("radar_meta").$type<Record<string, any>>().notNull().default({}),
   id: uuid("id").defaultRandom().primaryKey(),
   agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
   name: text("name").notNull(),

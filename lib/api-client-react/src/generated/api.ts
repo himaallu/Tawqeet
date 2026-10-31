@@ -25,6 +25,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AddDemoSignalBody,
   Agency,
   AgencyInput,
   BrainCaseStudy,
@@ -39,6 +40,9 @@ import type {
   CaseStudyInput,
   Client,
   ClientInput,
+  DemoLead,
+  DemoRadar,
+  DemoStatus,
   GetBrainLearningsParams,
   HealthStatus,
   LinkVerificationInput,
@@ -2325,4 +2329,779 @@ export function useListSignalLeads<TData = Awaited<ReturnType<typeof listSignalL
 
 
 
+
+export const getGetDemoStatusUrl = () => {
+
+
+
+
+  return `/api/demo/status`
+}
+
+export const getDemoStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<DemoStatus> => {
+
+  return customFetch<DemoStatus>(getGetDemoStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDemoStatusQueryKey = () => {
+    return [
+    `/api/demo/status`
+    ] as const;
+    }
+
+
+export const getGetDemoStatusQueryOptions = <TData = Awaited<ReturnType<typeof getDemoStatus>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDemoStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDemoStatus>>> = ({ signal }) => getDemoStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDemoStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDemoStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getDemoStatus>>>
+export type GetDemoStatusQueryError = ErrorType<unknown>
+
+
+export function useGetDemoStatus<TData = Awaited<ReturnType<typeof getDemoStatus>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDemoStatus<TData = Awaited<ReturnType<typeof getDemoStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDemoStatus<TData = Awaited<ReturnType<typeof getDemoStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDemoStatus<TData = Awaited<ReturnType<typeof getDemoStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDemoStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDemoLoginUrl = () => {
+
+
+
+
+  return `/api/demo/login`
+}
+
+export const demoLogin = async ( options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+  return customFetch<Message>(getDemoLoginUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getDemoLoginMutationKey = () => ['demoLogin'] as const;
+
+export const getDemoLoginMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof demoLogin>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof demoLogin>>, TError,void, TContext> => {
+
+const mutationKey = getDemoLoginMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof demoLogin>>, void> = () => {
+
+
+          return  demoLogin(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DemoLoginMutationResult = NonNullable<Awaited<ReturnType<typeof demoLogin>>>
+
+    export type DemoLoginMutationError = ErrorType<unknown>
+
+
+    export const useDemoLogin = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof demoLogin>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof demoLogin>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDemoLoginMutationOptions(options), queryClient);
+    }
+
+export const getLoadDemoDataUrl = () => {
+
+
+
+
+  return `/api/demo/load`
+}
+
+export const loadDemoData = async ( options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+  return customFetch<Message>(getLoadDemoDataUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getLoadDemoDataMutationKey = () => ['loadDemoData'] as const;
+
+export const getLoadDemoDataMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loadDemoData>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loadDemoData>>, TError,void, TContext> => {
+
+const mutationKey = getLoadDemoDataMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loadDemoData>>, void> = () => {
+
+
+          return  loadDemoData(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoadDemoDataMutationResult = NonNullable<Awaited<ReturnType<typeof loadDemoData>>>
+
+    export type LoadDemoDataMutationError = ErrorType<unknown>
+
+
+    export const useLoadDemoData = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loadDemoData>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof loadDemoData>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLoadDemoDataMutationOptions(options), queryClient);
+    }
+
+export const getGetDemoRadarUrl = () => {
+
+
+
+
+  return `/api/demo/radar`
+}
+
+export const getDemoRadar = async ( options?: Parameters<typeof customFetch>[1]): Promise<DemoRadar> => {
+
+  return customFetch<DemoRadar>(getGetDemoRadarUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDemoRadarQueryKey = () => {
+    return [
+    `/api/demo/radar`
+    ] as const;
+    }
+
+
+export const getGetDemoRadarQueryOptions = <TData = Awaited<ReturnType<typeof getDemoRadar>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoRadar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDemoRadarQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDemoRadar>>> = ({ signal }) => getDemoRadar({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDemoRadar>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDemoRadarQueryResult = NonNullable<Awaited<ReturnType<typeof getDemoRadar>>>
+export type GetDemoRadarQueryError = ErrorType<unknown>
+
+
+export function useGetDemoRadar<TData = Awaited<ReturnType<typeof getDemoRadar>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoRadar>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoRadar>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoRadar>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDemoRadar<TData = Awaited<ReturnType<typeof getDemoRadar>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoRadar>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoRadar>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoRadar>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDemoRadar<TData = Awaited<ReturnType<typeof getDemoRadar>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoRadar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDemoRadar<TData = Awaited<ReturnType<typeof getDemoRadar>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoRadar>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDemoRadarQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getRunDemoRadarUrl = () => {
+
+
+
+
+  return `/api/demo/radar/run`
+}
+
+export const runDemoRadar = async ( options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+  return customFetch<Message>(getRunDemoRadarUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRunDemoRadarMutationKey = () => ['runDemoRadar'] as const;
+
+export const getRunDemoRadarMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runDemoRadar>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runDemoRadar>>, TError,void, TContext> => {
+
+const mutationKey = getRunDemoRadarMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runDemoRadar>>, void> = () => {
+
+
+          return  runDemoRadar(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RunDemoRadarMutationResult = NonNullable<Awaited<ReturnType<typeof runDemoRadar>>>
+
+    export type RunDemoRadarMutationError = ErrorType<unknown>
+
+
+    export const useRunDemoRadar = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runDemoRadar>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof runDemoRadar>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRunDemoRadarMutationOptions(options), queryClient);
+    }
+
+export const getAddDemoSignalUrl = () => {
+
+
+
+
+  return `/api/demo/signals`
+}
+
+export const addDemoSignal = async (addDemoSignalBody: AddDemoSignalBody, options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Message>(getAddDemoSignalUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(addDemoSignalBody)
+  }
+);}
+
+
+
+
+
+export const getAddDemoSignalMutationKey = () => ['addDemoSignal'] as const;
+
+export const getAddDemoSignalMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addDemoSignal>>, TError,AddDemoSignalMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addDemoSignal>>, TError,AddDemoSignalMutationVariables, TContext> => {
+
+const mutationKey = getAddDemoSignalMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addDemoSignal>>, AddDemoSignalMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  addDemoSignal(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddDemoSignalMutationResult = NonNullable<Awaited<ReturnType<typeof addDemoSignal>>>
+    export type AddDemoSignalMutationBody = BodyType<AddDemoSignalBody>
+    export type AddDemoSignalMutationError = ErrorType<unknown>
+    export type AddDemoSignalMutationVariables = {data: BodyType<AddDemoSignalBody>}
+
+    export const useAddDemoSignal = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addDemoSignal>>, TError,AddDemoSignalMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof addDemoSignal>>,
+        TError,
+        AddDemoSignalMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAddDemoSignalMutationOptions(options), queryClient);
+    }
+
+export const getGetDemoLeadUrl = (id: string,) => {
+
+
+
+
+  return `/api/demo/leads/${id}`
+}
+
+export const getDemoLead = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<DemoLead> => {
+
+  return customFetch<DemoLead>(getGetDemoLeadUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDemoLeadQueryKey = (id: string,) => {
+    return [
+    `/api/demo/leads/${id}`
+    ] as const;
+    }
+
+
+export const getGetDemoLeadQueryOptions = <TData = Awaited<ReturnType<typeof getDemoLead>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoLead>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDemoLeadQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDemoLead>>> = ({ signal }) => getDemoLead(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDemoLead>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDemoLeadQueryResult = NonNullable<Awaited<ReturnType<typeof getDemoLead>>>
+export type GetDemoLeadQueryError = ErrorType<unknown>
+
+
+export function useGetDemoLead<TData = Awaited<ReturnType<typeof getDemoLead>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoLead>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoLead>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoLead>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDemoLead<TData = Awaited<ReturnType<typeof getDemoLead>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoLead>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDemoLead>>,
+          TError,
+          Awaited<ReturnType<typeof getDemoLead>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDemoLead<TData = Awaited<ReturnType<typeof getDemoLead>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoLead>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDemoLead<TData = Awaited<ReturnType<typeof getDemoLead>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDemoLead>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDemoLeadQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGenerateDemoDraftsUrl = (id: string,) => {
+
+
+
+
+  return `/api/demo/leads/${id}/drafts`
+}
+
+export const generateDemoDrafts = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+  return customFetch<Message>(getGenerateDemoDraftsUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getGenerateDemoDraftsMutationKey = () => ['generateDemoDrafts'] as const;
+
+export const getGenerateDemoDraftsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDemoDrafts>>, TError,GenerateDemoDraftsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateDemoDrafts>>, TError,GenerateDemoDraftsMutationVariables, TContext> => {
+
+const mutationKey = getGenerateDemoDraftsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateDemoDrafts>>, GenerateDemoDraftsMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  generateDemoDrafts(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateDemoDraftsMutationResult = NonNullable<Awaited<ReturnType<typeof generateDemoDrafts>>>
+
+    export type GenerateDemoDraftsMutationError = ErrorType<unknown>
+    export type GenerateDemoDraftsMutationVariables = {id: string}
+
+    export const useGenerateDemoDrafts = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateDemoDrafts>>, TError,GenerateDemoDraftsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof generateDemoDrafts>>,
+        TError,
+        GenerateDemoDraftsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getGenerateDemoDraftsMutationOptions(options), queryClient);
+    }
+
+export const getSimulateDemoDraftUrl = (id: string,) => {
+
+
+
+
+  return `/api/demo/drafts/${id}/simulate`
+}
+
+export const simulateDemoDraft = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+  return customFetch<Message>(getSimulateDemoDraftUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getSimulateDemoDraftMutationKey = () => ['simulateDemoDraft'] as const;
+
+export const getSimulateDemoDraftMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateDemoDraft>>, TError,SimulateDemoDraftMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof simulateDemoDraft>>, TError,SimulateDemoDraftMutationVariables, TContext> => {
+
+const mutationKey = getSimulateDemoDraftMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof simulateDemoDraft>>, SimulateDemoDraftMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  simulateDemoDraft(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SimulateDemoDraftMutationResult = NonNullable<Awaited<ReturnType<typeof simulateDemoDraft>>>
+
+    export type SimulateDemoDraftMutationError = ErrorType<unknown>
+    export type SimulateDemoDraftMutationVariables = {id: string}
+
+    export const useSimulateDemoDraft = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof simulateDemoDraft>>, TError,SimulateDemoDraftMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof simulateDemoDraft>>,
+        TError,
+        SimulateDemoDraftMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSimulateDemoDraftMutationOptions(options), queryClient);
+    }
+
+export const getRewriteDemoDraftUrl = (id: string,) => {
+
+
+
+
+  return `/api/demo/drafts/${id}/rewrite`
+}
+
+export const rewriteDemoDraft = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Message> => {
+
+  return customFetch<Message>(getRewriteDemoDraftUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRewriteDemoDraftMutationKey = () => ['rewriteDemoDraft'] as const;
+
+export const getRewriteDemoDraftMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rewriteDemoDraft>>, TError,RewriteDemoDraftMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof rewriteDemoDraft>>, TError,RewriteDemoDraftMutationVariables, TContext> => {
+
+const mutationKey = getRewriteDemoDraftMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rewriteDemoDraft>>, RewriteDemoDraftMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  rewriteDemoDraft(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RewriteDemoDraftMutationResult = NonNullable<Awaited<ReturnType<typeof rewriteDemoDraft>>>
+
+    export type RewriteDemoDraftMutationError = ErrorType<unknown>
+    export type RewriteDemoDraftMutationVariables = {id: string}
+
+    export const useRewriteDemoDraft = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rewriteDemoDraft>>, TError,RewriteDemoDraftMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof rewriteDemoDraft>>,
+        TError,
+        RewriteDemoDraftMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRewriteDemoDraftMutationOptions(options), queryClient);
+    }
 
