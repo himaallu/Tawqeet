@@ -7,6 +7,10 @@
  */
 
 export interface Billing {
+  simulationAllowance: number;
+  simulationsThisMonth: number;
+  atClientLimit: boolean;
+  atSimulationLimit: boolean;
   plan: string;
   priceUsd: number;
   includedClients: number;

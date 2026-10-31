@@ -8,6 +8,7 @@ import { leadEvidence } from "../lib/signals/scoring";
 import { hiringRadar, manualSignal } from "../lib/demo/hiring";
 import { seedDemo } from "../lib/demo/seed";
 import { notifyHotLeads } from "../lib/alerts";
+import { simulationLimitReached } from "../lib/plan";
 import { writeDrafts, simulate, rewrite, refreshGeminiSummaries } from "../lib/demo/writer";
 
 const router = Router();
@@ -95,6 +96,8 @@ router.post("/demo/signals",(req,res)=>{
 router.post("/demo/leads/:id/drafts",async(req,res)=>{
   const [lead]=await db.select().from(leads).where(and(eq(leads.agencyId,req.user!.agencyId),eq(leads.id,String(req.params.id)),isNotNull(leads.demoKey)));
   if(!lead){res.status(404).json({error:"Demo lead not found"});return;}
+  const limit=await simulationLimitReached(req.user!.agencyId,3);
+  if(limit){res.status(402).json({error:limit,upgrade:true});return;}
   const started=start(async()=>{stage(`Writing ${lead.fullName}'s drafts`);await writeDrafts(req.user!.agencyId,lead.id,true);});
   res.status(started?202:409).json(started?{message:"Writing drafts"}:{error:"Another demo job is running."});
 });
@@ -102,6 +105,8 @@ for(const action of ["simulate","rewrite"] as const) router.post(`/demo/drafts/:
   const [draft]=await db.select({id:drafts.id}).from(drafts).innerJoin(leads,eq(leads.id,drafts.leadId))
     .where(and(eq(drafts.agencyId,req.user!.agencyId),eq(drafts.id,String(req.params.id)),isNotNull(leads.demoKey)));
   if(!draft){res.status(404).json({error:"Demo draft not found"});return;}
+  const limit=await simulationLimitReached(req.user!.agencyId);
+  if(limit){res.status(402).json({error:limit,upgrade:true});return;}
   const started=start(async()=>{stage(action==="rewrite"?"Rewriting and re-scoring":"Simulating six recipients");await (action==="rewrite"?rewrite:simulate)(req.user!.agencyId,draft.id);});
   res.status(started?202:409).json(started?{message:"Started"}:{error:"Another demo job is running."});
 });

@@ -1141,6 +1141,12 @@ export const RewriteDemoDraftResponse = zod.object({
 
 
 export const GetReviewQueueResponse = zod.object({
+  "paused": zod.array(zod.object({
+  "clientId": zod.string(),
+  "clientName": zod.string(),
+  "reason": zod.string(),
+  "pausedAt": zod.string()
+})),
   "items": zod.array(zod.object({
   "leadId": zod.string(),
   "fullName": zod.string(),
@@ -1159,6 +1165,8 @@ export const GetReviewQueueResponse = zod.object({
   "state": zod.enum(['ready', 'sent', 'blocked']),
   "blockReason": zod.string().nullable(),
   "send": zod.union([zod.object({
+  "deliveryEvent": zod.string().nullable(),
+  "abArm": zod.string().nullable(),
   "id": zod.string(),
   "draftId": zod.string(),
   "sentAt": zod.string(),
@@ -1224,7 +1232,7 @@ export const MarkSendReplyParams = zod.object({
 })
 
 export const MarkSendReplyBody = zod.object({
-  "replyClass": zod.enum(['positive', 'neutral', 'negative', 'unsubscribe'])
+  "replyClass": zod.enum(['positive', 'neutral', 'negative', 'unsubscribe', 'bounce', 'complaint'])
 })
 
 export const MarkSendReplyResponse = zod.object({
@@ -1264,6 +1272,10 @@ export const SendTestAlertResponse = zod.object({
 
 
 export const GetBillingResponse = zod.object({
+  "simulationAllowance": zod.number().int(),
+  "simulationsThisMonth": zod.number().int(),
+  "atClientLimit": zod.boolean(),
+  "atSimulationLimit": zod.boolean(),
   "plan": zod.string(),
   "priceUsd": zod.number(),
   "includedClients": zod.number().int(),
@@ -1345,7 +1357,35 @@ export const CheckRecipientResponse = zod.object({
 })
 
 
+export const GetReportQueryParams = zod.object({
+  "clientId": zod.coerce.string().optional()
+})
+
 export const GetReportResponse = zod.object({
+  "clientName": zod.string().nullable(),
+  "readOnly": zod.boolean(),
+  "clients": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string()
+})),
+  "sentEmails": zod.array(zod.object({
+  "id": zod.string(),
+  "sentAt": zod.string(),
+  "leadName": zod.string(),
+  "companyName": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "replyClass": zod.string().nullable(),
+  "abArm": zod.string().nullable()
+})),
+  "abEnabled": zod.boolean(),
+  "abArms": zod.array(zod.object({
+  "bucket": zod.string(),
+  "sends": zod.number().int(),
+  "replies": zod.number().int(),
+  "positive": zod.number().int(),
+  "replyRate": zod.number()
+})),
   "emailsSent": zod.number().int(),
   "replies": zod.number().int(),
   "positiveReplies": zod.number().int(),
@@ -1371,6 +1411,226 @@ export const GetReportResponse = zod.object({
 export const GetLandingInfoResponse = zod.object({
   "bookDemoUrl": zod.string().nullable(),
   "priceUsd": zod.number()
+})
+
+
+export const SendDigestNowBody = zod.object({
+  "kind": zod.enum(['warm', 'cold'])
+})
+
+export const SendDigestNowResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ResumeClientSendingParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ResumeClientSendingResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ExportContactDataParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ExportContactDataResponse = zod.object({
+  "exportedAt": zod.string(),
+  "contact": zod.record(zod.string(), zod.unknown()),
+  "company": zod.record(zod.string(), zod.unknown()),
+  "legalBasis": zod.string(),
+  "signals": zod.array(zod.record(zod.string(), zod.unknown())),
+  "drafts": zod.array(zod.record(zod.string(), zod.unknown())),
+  "sends": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+
+export const DeleteContactParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const DeleteContactResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const CreateReportShareLinkBody = zod.object({
+  "clientId": zod.string()
+})
+
+export const CreateReportShareLinkResponse = zod.object({
+  "url": zod.string(),
+  "expiresAt": zod.string()
+})
+
+
+export const shareLoginBodyTokenRegExp = new RegExp('^[A-Za-z0-9_-]{43}$');
+
+
+export const ShareLoginBody = zod.object({
+  "token": zod.string().regex(shareLoginBodyTokenRegExp)
+})
+
+export const ShareLoginResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const UpdateAbTestBody = zod.object({
+  "enabled": zod.boolean()
+})
+
+export const UpdateAbTestResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ListPlaysResponse = zod.object({
+  "plays": zod.array(zod.object({
+  "id": zod.string(),
+  "signalKey": zod.string().nullable(),
+  "language": zod.enum(['en', 'ar']),
+  "name": zod.string(),
+  "structure": zod.string(),
+  "principles": zod.string(),
+  "persona": zod.string().nullable(),
+  "vertical": zod.string().nullable()
+})),
+  "signals": zod.array(zod.object({
+  "key": zod.string(),
+  "name": zod.string(),
+  "playHint": zod.string()
+}))
+})
+
+
+export const createPlayBodyNameMax = 120;
+
+export const createPlayBodyStructureMax = 3000;
+
+export const createPlayBodyPrinciplesMax = 3000;
+
+export const createPlayBodyPersonaMax = 120;
+
+
+
+export const CreatePlayBody = zod.object({
+  "signalKey": zod.string(),
+  "language": zod.enum(['en', 'ar']),
+  "name": zod.string().max(createPlayBodyNameMax),
+  "structure": zod.string().max(createPlayBodyStructureMax),
+  "principles": zod.string().max(createPlayBodyPrinciplesMax),
+  "persona": zod.string().max(createPlayBodyPersonaMax).nullish()
+})
+
+export const CreatePlayResponse = zod.object({
+  "id": zod.string(),
+  "signalKey": zod.string().nullable(),
+  "language": zod.enum(['en', 'ar']),
+  "name": zod.string(),
+  "structure": zod.string(),
+  "principles": zod.string(),
+  "persona": zod.string().nullable(),
+  "vertical": zod.string().nullable()
+})
+
+
+export const UpdatePlayParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const updatePlayBodyNameMax = 120;
+
+export const updatePlayBodyStructureMax = 3000;
+
+export const updatePlayBodyPrinciplesMax = 3000;
+
+export const updatePlayBodyPersonaMax = 120;
+
+
+
+export const UpdatePlayBody = zod.object({
+  "signalKey": zod.string(),
+  "language": zod.enum(['en', 'ar']),
+  "name": zod.string().max(updatePlayBodyNameMax),
+  "structure": zod.string().max(updatePlayBodyStructureMax),
+  "principles": zod.string().max(updatePlayBodyPrinciplesMax),
+  "persona": zod.string().max(updatePlayBodyPersonaMax).nullish()
+})
+
+export const UpdatePlayResponse = zod.object({
+  "id": zod.string(),
+  "signalKey": zod.string().nullable(),
+  "language": zod.enum(['en', 'ar']),
+  "name": zod.string(),
+  "structure": zod.string(),
+  "principles": zod.string(),
+  "persona": zod.string().nullable(),
+  "vertical": zod.string().nullable()
+})
+
+
+export const GetLiveServiceChecksResponse = zod.object({
+  "checkedAt": zod.string(),
+  "missingRequired": zod.array(zod.string()),
+  "checks": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'skip']),
+  "detail": zod.string()
+}))
+})
+
+
+export const GetMailboxStatusResponse = zod.object({
+  "realSend": zod.boolean(),
+  "encryptionReady": zod.boolean(),
+  "providers": zod.array(zod.object({
+  "provider": zod.enum(['gmail', 'outlook']),
+  "name": zod.string(),
+  "configured": zod.boolean(),
+  "scope": zod.string(),
+  "redirectUri": zod.string().nullable(),
+  "connections": zod.array(zod.object({
+  "clientId": zod.string(),
+  "clientName": zod.string(),
+  "email": zod.string(),
+  "status": zod.string()
+}))
+})),
+  "clients": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string()
+}))
+})
+
+
+export const StartMailboxOAuthParams = zod.object({
+  "provider": zod.enum(['gmail', 'outlook'])
+})
+
+export const StartMailboxOAuthResponse = zod.void()
+
+
+export const MailboxOAuthCallbackParams = zod.object({
+  "provider": zod.enum(['gmail', 'outlook'])
+})
+
+export const MailboxOAuthCallbackResponse = zod.void()
+
+
+/**
+ * Resend inbound email webhook (Svix-signed with INBOUND_WEBHOOK_SECRET). Matches the reply to a send and classifies it.
+ */
+export const InboundReplyWebhookBody = zod.object({
+  "type": zod.string().optional(),
+  "data": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const InboundReplyWebhookResponse = zod.object({
+  "message": zod.string()
 })
 
 

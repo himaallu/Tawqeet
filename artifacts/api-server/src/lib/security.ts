@@ -7,7 +7,7 @@ import { appOrigin } from "./config";
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: string; agencyId: string; email: string; role: "owner" | "member" | "client_viewer" };
+      user?: { id: string; agencyId: string; email: string; role: "owner" | "member" | "client_viewer"; clientId?: string | null };
     }
   }
 }
@@ -20,6 +20,8 @@ export function hashToken(value: string): string {
 }
 export const sameOrigin: RequestHandler = (req, res, next) => {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) { next(); return; }
+  // Signed server-to-server webhooks have no browser Origin; they verify their own signature.
+  if (req.path.startsWith("/webhooks/")) { next(); return; }
   try {
     const origin = req.get("origin");
     if (!origin || origin !== appOrigin()) {
@@ -37,7 +39,7 @@ export const sameOrigin: RequestHandler = (req, res, next) => {
 export const loadSession: RequestHandler = async (req, _res, next) => {
   const token: unknown = req.cookies?.[COOKIE_NAME];
   if (typeof token === "string" && /^[A-Za-z0-9_-]{43}$/.test(token) && process.env.SESSION_SECRET) {
-    const [row] = await db.select({ id: users.id, agencyId: users.agencyId, email: users.email, role: users.role })
+    const [row] = await db.select({ id: users.id, agencyId: users.agencyId, email: users.email, role: users.role, clientId: users.clientId })
       .from(sessions).innerJoin(users, and(eq(users.id, sessions.userId), eq(users.agencyId, sessions.agencyId)))
       .where(and(eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date()))).limit(1);
     req.user = row?.email === "demo@tawqeet.invalid" && process.env.DEMO_MODE !== "true" ? undefined : row;

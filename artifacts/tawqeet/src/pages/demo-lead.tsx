@@ -9,6 +9,8 @@ import { Thermometer, SampleBadge, JobBanner, SimulatedInbox, tempStyle } from "
 import { useDemoStatus, useKickStatus } from "@/hooks/use-demo";
 import { apiErrorMessage } from "@/lib/api-error";
 import { useToast } from "@/hooks/use-toast";
+import { errorToast } from "@/components/error-toast";
+import { ContactRights } from "@/components/contact-rights";
 
 export default function DemoLeadPage() {
   const { id = "" } = useParams<{ id: string }>();
@@ -28,9 +30,10 @@ export default function DemoLeadPage() {
       <Link href="/radar" className="text-sm text-muted-foreground inline-flex items-center gap-1 mb-4 hover:text-foreground"><ArrowLeft className="h-4 w-4" />Radar</Link>
       <PageHeader eyebrow={`${l.companyName} · ${l.country}`} title={<span dir="auto">{l.fullName}</span>}>
         <Button variant="outline" disabled={running || gen.isPending} data-testid="button-generate-drafts"
-          onClick={() => gen.mutate({ id: l.id }, { onSuccess: () => { kick(); toast({ title: "Generating drafts" }); }, onError: (e) => toast({ title: "Could not generate", description: apiErrorMessage(e), variant: "destructive" }) })}>
+          onClick={() => gen.mutate({ id: l.id }, { onSuccess: () => { kick(); toast({ title: "Generating drafts" }); }, onError: (e) => toast(errorToast("Could not generate", e)) })}>
           <Sparkles className="h-4 w-4 mr-2" />Regenerate drafts
         </Button>
+        <ContactRights leadId={l.id} name={l.fullName} />
       </PageHeader>
       <JobBanner status={status.data} />
       <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
@@ -72,7 +75,7 @@ function DraftCard({ d, running }: { d: DemoDraft; running: boolean }) {
   const { toast } = useToast();
   const sim = useSimulateDemoDraft();
   const rw = useRewriteDemoDraft();
-  const cb = (title: string) => ({ onSuccess: () => { kick(); setOpen(true); toast({ title }); }, onError: (e: unknown) => toast({ title: "Action failed", description: apiErrorMessage(e), variant: "destructive" }) });
+  const cb = (title: string) => ({ onSuccess: () => { kick(); setOpen(true); toast({ title }); }, onError: (e: unknown) => toast(errorToast("Action failed", e)) });
   const err = sim.error ?? rw.error;
 
   return (

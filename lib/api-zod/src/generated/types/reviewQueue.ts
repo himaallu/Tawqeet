@@ -5,9 +5,11 @@
  * Tawqeet foundation API
  * OpenAPI spec version: 0.1.0
  */
+import type { PausedClient } from './pausedClient';
 import type { ReviewItem } from './reviewItem';
 
 export interface ReviewQueue {
+  paused: PausedClient[];
   items: ReviewItem[];
   /** @nullable */
   recipient: string | null;

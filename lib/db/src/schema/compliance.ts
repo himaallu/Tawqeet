@@ -24,3 +24,13 @@ export const auditLog = pgTable("audit_log", {
   meta: jsonb("meta").$type<Record<string, unknown>>().notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, t => [index("audit_log_agency_idx").on(t.agencyId, t.createdAt)]);
+
+// Shareable read-only client report links (client_viewer sessions).
+export const shareLinks = pgTable("share_links", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
+  clientId: uuid("client_id").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

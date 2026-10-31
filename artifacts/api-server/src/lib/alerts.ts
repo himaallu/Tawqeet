@@ -5,6 +5,7 @@ import { sendEmail, demoRecipient } from "./resend";
 import { appOrigin } from "./config";
 import { audit } from "./compliance";
 import { logger } from "./logger";
+import { direct, sendDirect, type DirectChannel } from "./integrations";
 
 export type AlertPayload = { company: string; lead: string; title: string; score: number; temperature: string;
   why_now: string; signals: { name: string; title: string; url: string | null; points: number }[]; evidence_url: string | null;
@@ -37,7 +38,9 @@ export async function emailAlert(payload: AlertPayload) {
 async function deliver(agencyId: string, payload: AlertPayload, channel: Channel, leadId: string | null, test: boolean) {
   let status = "sent", error: string | null = null;
   try {
-    if (channel === "email") await emailAlert(payload); else await postWebhook(payload, channel);
+    if (channel === "email") await emailAlert(payload);
+    else if (channel !== "webhook" && direct[channel as DirectChannel]()) await sendDirect(channel as DirectChannel, payload);
+    else await postWebhook(payload, channel);
   } catch (e) {
     const message = e instanceof Error ? e.message : "Delivery failed";
     status = /not configured/.test(message) ? "skipped" : "failed"; error = message.slice(0, 300);
@@ -67,7 +70,8 @@ export async function notifyHotLeads(agencyId: string, warn?: (s: string) => voi
       db.select().from(alertsLog).where(and(eq(alertsLog.agencyId, agencyId), inArray(alertsLog.leadId, ids),
         gte(alertsLog.createdAt, new Date(Date.now() - 7 * 86_400_000)))).orderBy(desc(alertsLog.createdAt)),
     ]);
-    const channels: Channel[] = ["email", "webhook"];
+    // Make webhook stays the default fan-out; direct integrations add channels only when configured.
+    const channels: Channel[] = ["email", "webhook", ...(Object.keys(direct) as DirectChannel[]).filter(c => direct[c]())];
     for (const e of hot) {
       const row = rows.find(r => r.lead.id === e.id);
       if (!row) continue;

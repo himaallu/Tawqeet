@@ -527,6 +527,10 @@ export const ReviewItemState = {
 } as const;
 
 export interface SendRecord {
+  /** @nullable */
+  deliveryEvent: string | null;
+  /** @nullable */
+  abArm: string | null;
   id: string;
   draftId: string;
   sentAt: string;
@@ -563,7 +567,15 @@ export interface ReviewItem {
   drafts: DemoDraft[];
 }
 
+export interface PausedClient {
+  clientId: string;
+  clientName: string;
+  reason: string;
+  pausedAt: string;
+}
+
 export interface ReviewQueue {
+  paused: PausedClient[];
   items: ReviewItem[];
   /** @nullable */
   recipient: string | null;
@@ -592,6 +604,8 @@ export const ReplyInputReplyClass = {
   neutral: 'neutral',
   negative: 'negative',
   unsubscribe: 'unsubscribe',
+  bounce: 'bounce',
+  complaint: 'complaint',
 } as const;
 
 export interface ReplyInput {
@@ -657,6 +671,10 @@ export interface TestAlertInput {
 }
 
 export interface Billing {
+  simulationAllowance: number;
+  simulationsThisMonth: number;
+  atClientLimit: boolean;
+  atSimulationLimit: boolean;
   plan: string;
   priceUsd: number;
   includedClients: number;
@@ -738,7 +756,32 @@ export interface ReportCount {
   count: number;
 }
 
+export interface ReportClient {
+  id: string;
+  name: string;
+}
+
+export interface SentEmail {
+  id: string;
+  sentAt: string;
+  leadName: string;
+  companyName: string;
+  subject: string;
+  body: string;
+  /** @nullable */
+  replyClass: string | null;
+  /** @nullable */
+  abArm: string | null;
+}
+
 export interface Report {
+  /** @nullable */
+  clientName: string | null;
+  readOnly: boolean;
+  clients: ReportClient[];
+  sentEmails: SentEmail[];
+  abEnabled: boolean;
+  abArms: ReportBucket[];
   emailsSent: number;
   replies: number;
   positiveReplies: number;
@@ -753,6 +796,175 @@ export interface LandingInfo {
   bookDemoUrl: string | null;
   priceUsd: number;
 }
+
+export type DigestInputKind = typeof DigestInputKind[keyof typeof DigestInputKind];
+
+
+export const DigestInputKind = {
+  warm: 'warm',
+  cold: 'cold',
+} as const;
+
+export interface DigestInput {
+  kind: DigestInputKind;
+}
+
+export type ContactExportContact = { [key: string]: unknown };
+
+export type ContactExportCompany = { [key: string]: unknown };
+
+export type ContactExportSignalsItem = { [key: string]: unknown };
+
+export type ContactExportDraftsItem = { [key: string]: unknown };
+
+export type ContactExportSendsItem = { [key: string]: unknown };
+
+export interface ContactExport {
+  exportedAt: string;
+  contact: ContactExportContact;
+  company: ContactExportCompany;
+  legalBasis: string;
+  signals: ContactExportSignalsItem[];
+  drafts: ContactExportDraftsItem[];
+  sends: ContactExportSendsItem[];
+}
+
+export interface ShareLinkInput {
+  clientId: string;
+}
+
+export interface ShareLink {
+  url: string;
+  expiresAt: string;
+}
+
+export interface ShareLoginInput {
+  /** @pattern ^[A-Za-z0-9_-]{43}$ */
+  token: string;
+}
+
+export interface AbTestInput {
+  enabled: boolean;
+}
+
+export type PlayLanguage = typeof PlayLanguage[keyof typeof PlayLanguage];
+
+
+export const PlayLanguage = {
+  en: 'en',
+  ar: 'ar',
+} as const;
+
+export interface Play {
+  id: string;
+  /** @nullable */
+  signalKey: string | null;
+  language: PlayLanguage;
+  name: string;
+  structure: string;
+  principles: string;
+  /** @nullable */
+  persona: string | null;
+  /** @nullable */
+  vertical: string | null;
+}
+
+export type PlayInputLanguage = typeof PlayInputLanguage[keyof typeof PlayInputLanguage];
+
+
+export const PlayInputLanguage = {
+  en: 'en',
+  ar: 'ar',
+} as const;
+
+export interface PlayInput {
+  signalKey: string;
+  language: PlayInputLanguage;
+  /** @maxLength 120 */
+  name: string;
+  /** @maxLength 3000 */
+  structure: string;
+  /** @maxLength 3000 */
+  principles: string;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  persona?: string | null;
+}
+
+export type PlayLibrarySignalsItem = {
+  key: string;
+  name: string;
+  playHint: string;
+};
+
+export interface PlayLibrary {
+  plays: Play[];
+  signals: PlayLibrarySignalsItem[];
+}
+
+export type ServiceCheckStatus = typeof ServiceCheckStatus[keyof typeof ServiceCheckStatus];
+
+
+export const ServiceCheckStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  skip: 'skip',
+} as const;
+
+export interface ServiceCheck {
+  key: string;
+  label: string;
+  status: ServiceCheckStatus;
+  detail: string;
+}
+
+export interface LiveChecks {
+  checkedAt: string;
+  missingRequired: string[];
+  checks: ServiceCheck[];
+}
+
+export type MailboxProviderProvider = typeof MailboxProviderProvider[keyof typeof MailboxProviderProvider];
+
+
+export const MailboxProviderProvider = {
+  gmail: 'gmail',
+  outlook: 'outlook',
+} as const;
+
+export type MailboxProviderConnectionsItem = {
+  clientId: string;
+  clientName: string;
+  email: string;
+  status: string;
+};
+
+export interface MailboxProvider {
+  provider: MailboxProviderProvider;
+  name: string;
+  configured: boolean;
+  scope: string;
+  /** @nullable */
+  redirectUri: string | null;
+  connections: MailboxProviderConnectionsItem[];
+}
+
+export interface MailboxStatus {
+  realSend: boolean;
+  encryptionReady: boolean;
+  providers: MailboxProvider[];
+  clients: ReportClient[];
+}
+
+export type InboundEmailEventData = { [key: string]: unknown };
+
+export interface InboundEmailEvent {
+  type?: string;
+  data?: InboundEmailEventData;
+  [key: string]: unknown;
+ }
 
 export type RequestBrainUpload200 = {
   uploadUrl: string;
@@ -774,5 +986,9 @@ export type ListSignalDefinitions200 = {
 export type AddDemoSignalBody = {
   companyId: string;
   url: string;
+};
+
+export type GetReportParams = {
+clientId?: string;
 };
 

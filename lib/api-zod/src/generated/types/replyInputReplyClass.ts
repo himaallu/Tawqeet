@@ -14,4 +14,6 @@ export const ReplyInputReplyClass = {
   neutral: 'neutral',
   negative: 'negative',
   unsubscribe: 'unsubscribe',
+  bounce: 'bounce',
+  complaint: 'complaint',
 } as const;

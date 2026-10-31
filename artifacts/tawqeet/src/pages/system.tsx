@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorPanel, Restricted, PageHeader } from "@/components/states";
 import { can } from "@/lib/roles";
+import { LiveChecks } from "@/components/live-checks";
 import { apiErrorMessage } from "@/lib/api-error";
 
 const cats: { key: ConfigCheck["category"]; label: string; note: string }[] = [
@@ -42,6 +43,7 @@ export default function SystemPage({ user }: { user: User }) {
         {sys.data && <div className="px-3 py-2 font-mono text-xs text-muted-foreground self-center">Checked {format(new Date(sys.data.checkedAt), "d MMM yyyy, HH:mm:ss")}</div>}
       </div>
 
+      <LiveChecks />
       {sys.isLoading ? <div className="space-y-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-28" />)}</div>
         : sys.isError ? <ErrorPanel message={apiErrorMessage(sys.error)} onRetry={refresh} />
         : checks.length === 0 ? <p className="text-sm text-muted-foreground">The server returned no checks.</p>

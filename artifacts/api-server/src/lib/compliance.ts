@@ -1,5 +1,5 @@
 import { and, eq, isNull, or, gte, count } from "drizzle-orm";
-import { db, suppression, auditLog, sends } from "@workspace/db";
+import { db, suppression, auditLog, sends, drafts, leads, clients } from "@workspace/db";
 
 export const FREE_MAIL_DOMAINS = ["gmail.com", "googlemail.com", "yahoo.com", "hotmail.com", "outlook.com", "live.com",
   "icloud.com", "me.com", "aol.com", "proton.me", "protonmail.com"];
@@ -43,4 +43,23 @@ export async function sentToday(agencyId: string) {
 
 export async function audit(agencyId: string, userId: string | null, action: string, target: string, meta: Record<string, unknown> = {}) {
   try { await db.insert(auditLog).values({ agencyId, userId, action, target, meta }); } catch { /* audit must never break the action */ }
+}
+
+/** Pause a client's sending when today's bounces exceed 3% of sends or 3+ unsubscribes/complaints occur. */
+export async function checkAutoPause(agencyId: string, clientId: string): Promise<string | null> {
+  const start = new Date(); start.setUTCHours(0, 0, 0, 0);
+  const rows = await db.select({ replyClass: sends.replyClass, deliveryEvent: sends.deliveryEvent }).from(sends)
+    .innerJoin(drafts, eq(drafts.id, sends.draftId)).innerJoin(leads, eq(leads.id, drafts.leadId))
+    .where(and(eq(sends.agencyId, agencyId), eq(leads.clientId, clientId), gte(sends.sentAt, start)));
+  const bounces = rows.filter(r => r.deliveryEvent === "bounce").length;
+  const complaints = rows.filter(r => r.replyClass === "unsubscribe" || r.deliveryEvent === "complaint").length;
+  const reason = rows.length && bounces / rows.length > 0.03 ? `Bounce rate ${Math.round(bounces / rows.length * 100)}% of today's ${rows.length} sends (limit 3%)`
+    : complaints >= 3 ? `${complaints} unsubscribes/complaints today (limit 3)` : null;
+  if (!reason) return null;
+  const [client] = await db.select().from(clients).where(and(eq(clients.id, clientId), eq(clients.agencyId, agencyId)));
+  if (client && !client.sendingPausedAt) {
+    await db.update(clients).set({ sendingPausedAt: new Date(), sendingPausedReason: reason }).where(eq(clients.id, clientId));
+    await audit(agencyId, null, "sending.auto_pause", `${client.name}: ${reason}`);
+  }
+  return reason;
 }
