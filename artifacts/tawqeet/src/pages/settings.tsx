@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetAgency, useUpdateAgency, getGetAgencyQueryKey, type User } from "@workspace/api-client-react";
-import { ShieldCheck, ArrowRight, Check, Minus } from "lucide-react";
+import { Activity, ShieldCheck, ArrowRight, Check, Minus } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +73,14 @@ export default function SettingsPage({ user }: { user: User }) {
           <tbody>{matrix.map(([l, ...v]) => <tr key={l} className="border-t"><td className="px-6 py-2.5">{l}</td>{v.map((ok, i) => <td key={i} className="text-center">{ok ? <Check className="h-4 w-4 inline text-[hsl(160_45%_36%)]" aria-label="Allowed" /> : <Minus className="h-4 w-4 inline text-muted-foreground/50" aria-label="Not allowed" />}</td>)}</tr>)}</tbody>
         </table>
       </section>
+
+      {perms.viewSignals && (
+        <Link href="/settings/signals" className="mt-6 flex items-center gap-4 rounded-lg border bg-card p-5 group hover:bg-secondary/40 transition-colors" data-testid="link-settings-signals">
+          <Activity className="h-6 w-6 text-accent" />
+          <div className="flex-1"><div className="font-medium">Signals</div><div className="text-sm text-muted-foreground">Catalogue of buying signals, weights, decay and EN/AR keywords</div></div>
+          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
+      )}
 
       {perms.systemChecks && (
         <Link href="/settings/system" className="mt-6 flex items-center gap-4 rounded-lg border bg-primary text-primary-foreground p-5 group" data-testid="link-system-checks">

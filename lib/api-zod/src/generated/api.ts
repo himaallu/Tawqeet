@@ -799,3 +799,165 @@ export const GetBrainLearningsResponseItem = zod.object({
 export const GetBrainLearningsResponse = zod.array(GetBrainLearningsResponseItem)
 
 
+export const listSignalDefinitionsResponseDefinitionsItemOneBaseWeightMin = -40;
+export const listSignalDefinitionsResponseDefinitionsItemOneBaseWeightMax = 40;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneHalfLifeDaysMax = 3650;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersSaasMin = 0;
+export const listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersSaasMax = 10;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersReMin = 0;
+export const listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersReMax = 10;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersHrMin = 0;
+export const listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersHrMax = 10;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneKeywordsEnItemMax = 200;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneKeywordsEnMax = 100;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneKeywordsArItemMax = 200;
+
+export const listSignalDefinitionsResponseDefinitionsItemOneKeywordsArMax = 100;
+
+
+
+export const ListSignalDefinitionsResponse = zod.object({
+  "count": zod.number().int(),
+  "definitions": zod.array(zod.object({
+  "baseWeight": zod.number().int().min(listSignalDefinitionsResponseDefinitionsItemOneBaseWeightMin).max(listSignalDefinitionsResponseDefinitionsItemOneBaseWeightMax),
+  "halfLifeDays": zod.number().int().min(1).max(listSignalDefinitionsResponseDefinitionsItemOneHalfLifeDaysMax),
+  "verticalMultipliers": zod.object({
+  "saas": zod.number().min(listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersSaasMin).max(listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersSaasMax),
+  "re": zod.number().min(listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersReMin).max(listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersReMax),
+  "hr": zod.number().min(listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersHrMin).max(listSignalDefinitionsResponseDefinitionsItemOneVerticalMultipliersHrMax)
+}),
+  "keywordsEn": zod.array(zod.string().max(listSignalDefinitionsResponseDefinitionsItemOneKeywordsEnItemMax)).max(listSignalDefinitionsResponseDefinitionsItemOneKeywordsEnMax),
+  "keywordsAr": zod.array(zod.string().max(listSignalDefinitionsResponseDefinitionsItemOneKeywordsArItemMax)).max(listSignalDefinitionsResponseDefinitionsItemOneKeywordsArMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "sourceTypes": zod.array(zod.string()),
+  "targetPersonas": zod.array(zod.string()),
+  "exclusions": zod.array(zod.string()),
+  "playHint": zod.string(),
+  "isNegative": zod.boolean(),
+  "scope": zod.enum(['company', 'industry'])
+})))
+})
+
+
+export const UpdateSignalDefinitionParams = zod.object({
+  "key": zod.coerce.string()
+})
+
+export const updateSignalDefinitionBodyBaseWeightMin = -40;
+export const updateSignalDefinitionBodyBaseWeightMax = 40;
+
+export const updateSignalDefinitionBodyHalfLifeDaysMax = 3650;
+
+export const updateSignalDefinitionBodyVerticalMultipliersSaasMin = 0;
+export const updateSignalDefinitionBodyVerticalMultipliersSaasMax = 10;
+
+export const updateSignalDefinitionBodyVerticalMultipliersReMin = 0;
+export const updateSignalDefinitionBodyVerticalMultipliersReMax = 10;
+
+export const updateSignalDefinitionBodyVerticalMultipliersHrMin = 0;
+export const updateSignalDefinitionBodyVerticalMultipliersHrMax = 10;
+
+export const updateSignalDefinitionBodyKeywordsEnItemMax = 200;
+
+export const updateSignalDefinitionBodyKeywordsEnMax = 100;
+
+export const updateSignalDefinitionBodyKeywordsArItemMax = 200;
+
+export const updateSignalDefinitionBodyKeywordsArMax = 100;
+
+
+
+export const UpdateSignalDefinitionBody = zod.object({
+  "baseWeight": zod.number().int().min(updateSignalDefinitionBodyBaseWeightMin).max(updateSignalDefinitionBodyBaseWeightMax),
+  "halfLifeDays": zod.number().int().min(1).max(updateSignalDefinitionBodyHalfLifeDaysMax),
+  "verticalMultipliers": zod.object({
+  "saas": zod.number().min(updateSignalDefinitionBodyVerticalMultipliersSaasMin).max(updateSignalDefinitionBodyVerticalMultipliersSaasMax),
+  "re": zod.number().min(updateSignalDefinitionBodyVerticalMultipliersReMin).max(updateSignalDefinitionBodyVerticalMultipliersReMax),
+  "hr": zod.number().min(updateSignalDefinitionBodyVerticalMultipliersHrMin).max(updateSignalDefinitionBodyVerticalMultipliersHrMax)
+}),
+  "keywordsEn": zod.array(zod.string().max(updateSignalDefinitionBodyKeywordsEnItemMax)).max(updateSignalDefinitionBodyKeywordsEnMax),
+  "keywordsAr": zod.array(zod.string().max(updateSignalDefinitionBodyKeywordsArItemMax)).max(updateSignalDefinitionBodyKeywordsArMax),
+  "active": zod.boolean()
+})
+
+export const updateSignalDefinitionResponseOneBaseWeightMin = -40;
+export const updateSignalDefinitionResponseOneBaseWeightMax = 40;
+
+export const updateSignalDefinitionResponseOneHalfLifeDaysMax = 3650;
+
+export const updateSignalDefinitionResponseOneVerticalMultipliersSaasMin = 0;
+export const updateSignalDefinitionResponseOneVerticalMultipliersSaasMax = 10;
+
+export const updateSignalDefinitionResponseOneVerticalMultipliersReMin = 0;
+export const updateSignalDefinitionResponseOneVerticalMultipliersReMax = 10;
+
+export const updateSignalDefinitionResponseOneVerticalMultipliersHrMin = 0;
+export const updateSignalDefinitionResponseOneVerticalMultipliersHrMax = 10;
+
+export const updateSignalDefinitionResponseOneKeywordsEnItemMax = 200;
+
+export const updateSignalDefinitionResponseOneKeywordsEnMax = 100;
+
+export const updateSignalDefinitionResponseOneKeywordsArItemMax = 200;
+
+export const updateSignalDefinitionResponseOneKeywordsArMax = 100;
+
+
+
+export const UpdateSignalDefinitionResponse = zod.object({
+  "baseWeight": zod.number().int().min(updateSignalDefinitionResponseOneBaseWeightMin).max(updateSignalDefinitionResponseOneBaseWeightMax),
+  "halfLifeDays": zod.number().int().min(1).max(updateSignalDefinitionResponseOneHalfLifeDaysMax),
+  "verticalMultipliers": zod.object({
+  "saas": zod.number().min(updateSignalDefinitionResponseOneVerticalMultipliersSaasMin).max(updateSignalDefinitionResponseOneVerticalMultipliersSaasMax),
+  "re": zod.number().min(updateSignalDefinitionResponseOneVerticalMultipliersReMin).max(updateSignalDefinitionResponseOneVerticalMultipliersReMax),
+  "hr": zod.number().min(updateSignalDefinitionResponseOneVerticalMultipliersHrMin).max(updateSignalDefinitionResponseOneVerticalMultipliersHrMax)
+}),
+  "keywordsEn": zod.array(zod.string().max(updateSignalDefinitionResponseOneKeywordsEnItemMax)).max(updateSignalDefinitionResponseOneKeywordsEnMax),
+  "keywordsAr": zod.array(zod.string().max(updateSignalDefinitionResponseOneKeywordsArItemMax)).max(updateSignalDefinitionResponseOneKeywordsArMax),
+  "active": zod.boolean()
+}).and(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "sourceTypes": zod.array(zod.string()),
+  "targetPersonas": zod.array(zod.string()),
+  "exclusions": zod.array(zod.string()),
+  "playHint": zod.string(),
+  "isNegative": zod.boolean(),
+  "scope": zod.enum(['company', 'industry'])
+}))
+
+
+export const ListSignalLeadsResponseItem = zod.object({
+  "id": zod.string(),
+  "fullName": zod.string(),
+  "companyName": zod.string(),
+  "clientName": zod.string(),
+  "totalScore": zod.number().int(),
+  "signalPoints": zod.number(),
+  "signals": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "title": zod.string(),
+  "evidenceQuote": zod.string(),
+  "url": zod.string().nullable(),
+  "detectedAt": zod.string(),
+  "points": zod.number()
+}))
+})
+export const ListSignalLeadsResponse = zod.array(ListSignalLeadsResponseItem)
+
+

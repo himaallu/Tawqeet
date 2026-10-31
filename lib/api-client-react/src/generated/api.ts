@@ -42,10 +42,14 @@ import type {
   GetBrainLearningsParams,
   HealthStatus,
   LinkVerificationInput,
+  ListSignalDefinitions200,
   MagicLinkInput,
   Message,
   RequestBrainUpload200,
   SessionInfo,
+  SignalDefinition,
+  SignalDefinitionInput,
+  SignalLead,
   SystemCheck
 } from './api.schemas';
 
@@ -2037,6 +2041,279 @@ export function useGetBrainLearnings<TData = Awaited<ReturnType<typeof getBrainL
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetBrainLearningsQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListSignalDefinitionsUrl = () => {
+
+
+
+
+  return `/api/settings/signals`
+}
+
+export const listSignalDefinitions = async ( options?: Parameters<typeof customFetch>[1]): Promise<ListSignalDefinitions200> => {
+
+  return customFetch<ListSignalDefinitions200>(getListSignalDefinitionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSignalDefinitionsQueryKey = () => {
+    return [
+    `/api/settings/signals`
+    ] as const;
+    }
+
+
+export const getListSignalDefinitionsQueryOptions = <TData = Awaited<ReturnType<typeof listSignalDefinitions>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalDefinitions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSignalDefinitionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSignalDefinitions>>> = ({ signal }) => listSignalDefinitions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSignalDefinitions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListSignalDefinitionsQueryResult = NonNullable<Awaited<ReturnType<typeof listSignalDefinitions>>>
+export type ListSignalDefinitionsQueryError = ErrorType<unknown>
+
+
+export function useListSignalDefinitions<TData = Awaited<ReturnType<typeof listSignalDefinitions>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalDefinitions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSignalDefinitions>>,
+          TError,
+          Awaited<ReturnType<typeof listSignalDefinitions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSignalDefinitions<TData = Awaited<ReturnType<typeof listSignalDefinitions>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalDefinitions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSignalDefinitions>>,
+          TError,
+          Awaited<ReturnType<typeof listSignalDefinitions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSignalDefinitions<TData = Awaited<ReturnType<typeof listSignalDefinitions>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalDefinitions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListSignalDefinitions<TData = Awaited<ReturnType<typeof listSignalDefinitions>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalDefinitions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListSignalDefinitionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateSignalDefinitionUrl = (key: string,) => {
+
+
+
+
+  return `/api/settings/signals/${key}`
+}
+
+export const updateSignalDefinition = async (key: string,
+    signalDefinitionInput: SignalDefinitionInput, options?: Parameters<typeof customFetch>[1]): Promise<SignalDefinition> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<SignalDefinition>(getUpdateSignalDefinitionUrl(key),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(signalDefinitionInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateSignalDefinitionMutationKey = () => ['updateSignalDefinition'] as const;
+
+export const getUpdateSignalDefinitionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSignalDefinition>>, TError,UpdateSignalDefinitionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSignalDefinition>>, TError,UpdateSignalDefinitionMutationVariables, TContext> => {
+
+const mutationKey = getUpdateSignalDefinitionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSignalDefinition>>, UpdateSignalDefinitionMutationVariables> = (props) => {
+          const {key,data} = props ?? {};
+
+          return  updateSignalDefinition(key,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSignalDefinitionMutationResult = NonNullable<Awaited<ReturnType<typeof updateSignalDefinition>>>
+    export type UpdateSignalDefinitionMutationBody = BodyType<SignalDefinitionInput>
+    export type UpdateSignalDefinitionMutationError = ErrorType<unknown>
+    export type UpdateSignalDefinitionMutationVariables = {key: string;data: BodyType<SignalDefinitionInput>}
+
+    export const useUpdateSignalDefinition = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSignalDefinition>>, TError,UpdateSignalDefinitionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSignalDefinition>>,
+        TError,
+        UpdateSignalDefinitionMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateSignalDefinitionMutationOptions(options), queryClient);
+    }
+
+export const getListSignalLeadsUrl = () => {
+
+
+
+
+  return `/api/leads/signals`
+}
+
+export const listSignalLeads = async ( options?: Parameters<typeof customFetch>[1]): Promise<SignalLead[]> => {
+
+  return customFetch<SignalLead[]>(getListSignalLeadsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSignalLeadsQueryKey = () => {
+    return [
+    `/api/leads/signals`
+    ] as const;
+    }
+
+
+export const getListSignalLeadsQueryOptions = <TData = Awaited<ReturnType<typeof listSignalLeads>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalLeads>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSignalLeadsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSignalLeads>>> = ({ signal }) => listSignalLeads({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSignalLeads>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListSignalLeadsQueryResult = NonNullable<Awaited<ReturnType<typeof listSignalLeads>>>
+export type ListSignalLeadsQueryError = ErrorType<unknown>
+
+
+export function useListSignalLeads<TData = Awaited<ReturnType<typeof listSignalLeads>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalLeads>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSignalLeads>>,
+          TError,
+          Awaited<ReturnType<typeof listSignalLeads>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSignalLeads<TData = Awaited<ReturnType<typeof listSignalLeads>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalLeads>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listSignalLeads>>,
+          TError,
+          Awaited<ReturnType<typeof listSignalLeads>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListSignalLeads<TData = Awaited<ReturnType<typeof listSignalLeads>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalLeads>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useListSignalLeads<TData = Awaited<ReturnType<typeof listSignalLeads>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listSignalLeads>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListSignalLeadsQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -37,7 +37,7 @@ export function parseCrmCsv(csv: string, kind: "contacts" | "won_deals") {
   let skipped = 0;
   for (const row of rows) {
     const data: Record<string, string> = {};
-    const fields = ["email", "firstname", "lastname", "first_name", "last_name", "company", "industry", "vertical", "dealname", "deal_name", "amount", "dealstage", "deal_stage", "stage", "status", "closedate", "country", "domain"];
+    const fields = ["email", "firstname", "lastname", "first_name", "last_name", "company", "industry", "vertical", "dealname", "deal_name", "amount", "dealstage", "deal_stage", "stage", "status", "closedate", "country", "domain", "linkedin_url", "linkedin", "title", "jobtitle"];
     for (const field of fields) if (row[field]) data[field] = row[field]!.slice(0, 2000);
     const stage = (row.dealstage || row.deal_stage || row.stage || row.status || "").toLowerCase().replace(/[\s_-]/g, "");
     if (kind === "won_deals" && stage && !["closedwon", "won"].includes(stage)) { skipped++; continue; }

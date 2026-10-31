@@ -1,3 +1,13 @@
+## 2026-10-31 — Signal definitions
+
+- Installed the 20 definitions from `docs/Tawqeet_Signal_Definitions.md`, upserted by key.
+- Applied the requested overrides: `hiring_sales_role` 35 points / 30 days; `hiring_surge` 30 points / 21 days.
+- Added descriptions, source arrays, EN/AR keywords, exclusions, personas, vertical multipliers, play hints, negative flags and company/industry scope.
+- Replaced obsolete placeholder keys without deleting their signal evidence or play references.
+- Added Settings → Signals editing, immediate lead re-scoring, time decay, score caps and per-lead source evidence.
+- Added definition-driven GCC classification, RSS/exchange-news collection, page-diff watching and weekly LeadOcean/CRM champion checks. External collectors require their documented configuration; no credentials or feeds are invented.
+- No authentication, email-delivery, ownership, outbound sending or unrelated feature changes.
+
 # Changelog
 
 ## 2026-10-31 — Phase 2: client Brain

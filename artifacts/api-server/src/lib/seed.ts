@@ -1,23 +1,13 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, pool, agencies, clients, signalDefinitions, companies, signals, leads, drafts, leadSignals } from "@workspace/db";
 import { logger } from "./logger";
+import catalogue from "./signals/definitions.json" with { type: "json" };
+import { seedSignalDefinitions } from "./signals/catalog";
+import { leadEvidence } from "./signals/scoring";
 
 const agencyId = "10000000-0000-4000-8000-000000000001";
 const clientIds = ["20000000-0000-4000-8000-000000000001", "20000000-0000-4000-8000-000000000002"];
-const definitions = [
-  ["funding_round", "Funding round", "funding", 35, 30],
-  ["expansion_new_market", "Expansion into a new market", "news", 30, 45],
-  ["hiring_sales_role", "Hiring a sales role", "hiring", 25, 30],
-  ["hiring_relevant_role", "Hiring a relevant role", "hiring", 25, 30],
-  ["careers_page_new_roles", "New roles on careers page", "careers_page", 20, 21],
-  ["leadership_change", "Leadership change", "leadership", 30, 60],
-  ["tender_published", "Tender published", "tender", 35, 21],
-  ["new_company_registration", "New company registration", "registry", 15, 90],
-  ["product_launch", "Product launch", "news", 20, 30],
-  ["partnership_announced", "Partnership announced", "news", 20, 30],
-  ["event_exhibitor", "Event exhibitor (GITEX / Cityscape)", "news", 20, 14],
-  ["office_opening", "Office opening", "news", 25, 45],
-] as const;
+const definitions = catalogue.map(d => [d.key, d.name] as const);
 
 export async function seed(): Promise<void> {
   await db.transaction(async tx => {
@@ -36,9 +26,7 @@ export async function seed(): Promise<void> {
         icp: { companySize: "20–200 employees", personas: ["CEO", "Managing Director"], markets: ["GCC"] },
         tone: "Confident, consultative and concise", noGoClaims: ["Guaranteed revenue", "Legal or investment advice"] },
     ]).onConflictDoNothing();
-    for (const [key, name, sourceType, baseWeight, halfLifeDays] of definitions) {
-      await tx.insert(signalDefinitions).values({ key, name, sourceType, baseWeight, halfLifeDays }).onConflictDoNothing();
-    }
+    await seedSignalDefinitions(tx);
     const companyNames = ["Gulf Horizon", "Desert Cloud", "Falaj Logistics", "Oasis Ventures", "Dune Retail", "Pearl Health", "Crescent Systems", "Palm Estates", "Wadi Energy", "Majlis Digital"];
     for (let i = 0; i < 10; i++) {
       const suffix = String(i + 1).padStart(12, "0");
@@ -66,7 +54,11 @@ export async function seed(): Promise<void> {
       }
     }
   });
-  logger.info("Foundation seed complete: one agency, two demo clients, twelve definitions, ten demo signals. No emails sent.");
+  await db.transaction(async tx => {
+    await tx.execute(sql`select pg_advisory_xact_lock(842733)`);
+    await leadEvidence(undefined, tx, true);
+  });
+  logger.info("Seed complete: one agency, two demo clients, twenty signal definitions, ten demo signals. No emails sent.");
 }
 
 seed().then(() => pool.end()).catch(() => {

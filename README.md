@@ -2,7 +2,7 @@
 
 Tawqeet is a multi-tenant B2B outbound workspace for agencies in the UAE and GCC. Active: passwordless sign-in, one agency, client profiles, a per-client Brain and Settings → System check.
 
-Radar, Leads, Review & Send and Plays remain deferred. Brain supports website crawling, onboarding, case-study uploads and approval, CRM imports and reply learnings. No outbound sending, radar, lead enrichment or mailbox connection is enabled.
+Signals supports the 20-definition catalogue, Settings → Signals editing, matched lead evidence, GCC classification, scheduled collectors and temperature scoring. Brain supports website crawling, onboarding, case-study uploads and approval, CRM imports and reply learnings. Review & Send and Plays remain deferred; no outbound sending or mailbox connection is enabled.
 
 ## Stack
 
@@ -28,7 +28,7 @@ pnpm run db:migrate
 pnpm run db:seed
 ```
 
-Seed is idempotent and does not overwrite edited client profiles. It creates one agency, two demo clients, twelve placeholder signal definitions, ten fictional Gulf signals, two demo leads and six draft fixtures. All fixture domains use `.example`; no emails are sent. **Offline fixtures do not bypass login.** The owner account is created only after verifying the first magic link sent to the configured owner address.
+Seed is idempotent and does not overwrite edited client profiles. It creates one agency, two demo clients, twenty signal definitions, ten fictional Gulf signals, two demo leads and six draft fixtures. All fixture domains use `.example`; no emails are sent. **Offline fixtures do not bypass login.** The owner account is created only after verifying the first magic link sent to the configured owner address.
 
 ## Run locally
 
@@ -105,6 +105,16 @@ Run backend Brain regressions with `pnpm --filter @workspace/api-server run test
 
 ### Additional provider options and later phases
 
+- Signal catalogue migration/seed: `pnpm --filter @workspace/api-server run signals:seed`. It extends the development schema, upserts the supplied JSON and the two weight overrides, preserves legacy references and recalculates lead scores. No demo clients or other fixtures are inserted by this command.
+- `SIGNAL_NEWS_FEEDS` — optional JSON array of `{ "url": "https://…/feed", "sourceType": "news" }`; `exchange_disclosure` is also supported for DFM/ADX/Tadawul feeds. Without a disclosure feed, ordinary news supplies exchange-disclosure evidence. Google Maps, government, tender and registry signals are news-classified for now, not direct integrations.
+- `LEADOCEAN_API_KEY` — server-only key for weekly company/people searches and CRM contact enrichment. With no key these collectors explicitly report unconfigured and make no requests.
+- `SIGNAL_TECHNOLOGIES` — comma-separated vendor/product names for LeadOcean's documented technology filter. Without names the technographic search is skipped rather than running an unfiltered paid query.
+- LeadOcean's documented API has no dedicated open-job filter: its weekly hiring search uses supported company-keyword filters. The careers watcher supplies actual dated new-role evidence. A search hit, fetched timestamp, static technology detection or undated profile is not sufficient to create a signal.
+- Live collection does not run during seeding. Page watchers establish an initial baseline, ignore website text changes below 15%, watch homepage/pricing/integrations/careers, and count genuinely distinct new roles rather than reposted titles. Only dated, grounded GCC events with confidence ≥ 0.6 survive classification.
+- Regulations are stored once per event with affected countries/industries, then applied at read/re-score time only to matching companies and client verticals. Champion evidence is restricted to that client's matched contact at their new company.
+- `leads.fit_score` is the non-signal portion of the thermometer (default zero). Signal points use full-precision half-life decay and the client vertical multiplier, subtract negative signals, cap at 50, then clamp the total to 0–100. Disabled definitions contribute zero. Owners can edit the shared catalogue; staff can read; client viewers cannot access it.
+- Regression tests: `pnpm --filter @workspace/api-server run test:signals`.
+
 - `ENCRYPTION_KEY` — 64 hexadecimal characters for AES-256-GCM encryption of OAuth tokens.
 - `GEMINI_API_KEY` — optional Gemini provider credential.
 - `ANTHROPIC_API_KEY` — optional Anthropic provider credential.
@@ -146,12 +156,12 @@ Use a **Reserved VM**, not Autoscale, so the pg-boss worker stays running. Selec
 
 Before publishing, set `APP_URL` for the actual published origin and use a verified Resend sender for multi-user delivery. Do not use a development preview URL in production. Replit's Publish flow manages production schema changes; never run `db:migrate` against the managed production database, and do not run migrations or seed automatically during startup.
 
-Schedules for radar every 30 minutes and nightly score decay are deliberately deferred. Only hourly authentication cleanup is scheduled now.
+The Dubai-time worker schedules hourly RSS/news collection and score decay, daily page watching, weekly Monday LeadOcean searches and CRM champion checks, plus hourly authentication cleanup. Sources without credentials/feed configuration make no requests.
 
 ## Build status
 
 - [x] Phase 0 — Project setup, all foundation tables, Resend magic links, sessions, one agency, clients, system diagnostics and worker foundation
-- [ ] Phase 1 — Radar and business-signal collection
+- [x] Phase 1 — Definition-driven GCC radar, scheduled collectors and signal settings (external sources require configuration)
 - [x] Phase 2 — Brain, client learning, case-study approval and CRM import lite (client OAuth deferred)
 - [ ] Phase 3 — Leads, enrichment and temperature scoring
 - [ ] Phase 4 — Plays and three email variants

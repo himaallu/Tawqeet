@@ -5,5 +5,7 @@ export const can = (u: User | null | undefined) => ({
   editClients: !!u && u.role !== "client_viewer",
   deleteClients: u?.role === "owner",
   editAgency: u?.role === "owner",
+  viewSignals: !!u && u.role !== "client_viewer",
+  editSignals: u?.role === "owner",
   systemChecks: u?.role === "owner",
 });

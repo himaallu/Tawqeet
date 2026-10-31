@@ -5,6 +5,91 @@
  * Tawqeet foundation API
  * OpenAPI spec version: 0.1.0
  */
+export type SignalDefinitionInputVerticalMultipliers = {
+  /**
+     * @minimum 0
+     * @maximum 10
+     */
+  saas: number;
+  /**
+     * @minimum 0
+     * @maximum 10
+     */
+  re: number;
+  /**
+     * @minimum 0
+     * @maximum 10
+     */
+  hr: number;
+};
+
+export interface SignalDefinitionInput {
+  /**
+     * @minimum -40
+     * @maximum 40
+     */
+  baseWeight: number;
+  /**
+     * @minimum 1
+     * @maximum 3650
+     */
+  halfLifeDays: number;
+  verticalMultipliers: SignalDefinitionInputVerticalMultipliers;
+  /**
+     * @maxItems 100
+     * @items.maxLength 200
+     */
+  keywordsEn: string[];
+  /**
+     * @maxItems 100
+     * @items.maxLength 200
+     */
+  keywordsAr: string[];
+  active: boolean;
+}
+
+export type SignalDefinitionScope = typeof SignalDefinitionScope[keyof typeof SignalDefinitionScope];
+
+
+export const SignalDefinitionScope = {
+  company: 'company',
+  industry: 'industry',
+} as const;
+
+export type SignalDefinition = SignalDefinitionInput & {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  sourceTypes: string[];
+  targetPersonas: string[];
+  exclusions: string[];
+  playHint: string;
+  isNegative: boolean;
+  scope: SignalDefinitionScope;
+};
+
+export type SignalLeadSignalsItem = {
+  id: string;
+  name: string;
+  title: string;
+  evidenceQuote: string;
+  /** @nullable */
+  url: string | null;
+  detectedAt: string;
+  points: number;
+};
+
+export interface SignalLead {
+  id: string;
+  fullName: string;
+  companyName: string;
+  clientName: string;
+  totalScore: number;
+  signalPoints: number;
+  signals: SignalLeadSignalsItem[];
+}
+
 export type BrainProfileInputLanguagesItem = typeof BrainProfileInputLanguagesItem[keyof typeof BrainProfileInputLanguagesItem];
 
 
@@ -326,5 +411,10 @@ export type GetBrainLearningsParams = {
  * @maxLength 200
  */
 vertical?: string;
+};
+
+export type ListSignalDefinitions200 = {
+  count: number;
+  definitions: SignalDefinition[];
 };
 

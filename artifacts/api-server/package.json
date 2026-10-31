@@ -12,7 +12,9 @@
     "worker:prod": "node --enable-source-maps ./dist/worker.mjs",
     "seed": "tsx ../../seed.ts",
     "brain:install": "tsx ../../scripts/install-brain-learning.ts",
-    "test:brain": "tsx --test src/lib/brain/brain.test.ts"
+    "test:brain": "tsx --test src/lib/brain/brain.test.ts",
+    "signals:seed": "tsx ../../scripts/seed-signals.ts",
+    "test:signals": "tsx --test src/lib/signals/signals.test.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.92",

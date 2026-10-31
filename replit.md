@@ -1,6 +1,6 @@
 # Tawqeet
 
-Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Active: Resend magic-link login, Postgres sessions, one agency, clients, client Brain and Settings → System check.
+Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Active: Resend magic-link login, Postgres sessions, one agency, clients, client Brain, signal catalogue/scoring/collectors, matched lead evidence and Settings → System check.
 
 ## Scope and decisions
 
@@ -14,6 +14,8 @@ Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Active: Resend magic
 - Brain evidence requires explicit human approval. The future writer must use `server/lib/brain.ts`, not raw website or case-study entries; unnamed customers must be anonymised before prompting.
 - The HubSpot connection/private app token is shared by the agency. Import is a deliberate action into a selected client, never an automatic sync. Client OAuth remains a stub.
 - Reply-learning capture is a Postgres trigger installed by the schema migration. It must work even when a future worker or webhook updates `sends` outside the API.
+- Signal catalogue source: `docs/Tawqeet_Signal_Definitions.md`; the user overrides hiring_sales_role to 35/30 days and hiring_surge to 30/21 days. Seed only via the JSON catalogue and preserve existing evidence when replacing placeholder keys.
+- News and LeadOcean collectors require explicit server configuration. No external requests or AI generation occur during signal seeding. Never infer a dated event from a provider fetch timestamp; champion signals are private to the matching client/contact.
 
 ## Commands
 
@@ -40,6 +42,6 @@ Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Active: Resend magic
 
 Secrets stay in environment settings. Diagnostics expose booleans/explanations only. Resend uses the connected integration, not a raw API-key variable. A sending-only Resend key returns `restricted_api_key` for domain-list requests; that is a valid connection, not an expired credential.
 
-Use Reserved VM when publishing. API production supervision starts the compiled API and worker as separate Node processes. No radar/score-decay jobs are scheduled yet. Replit Publish manages production schema; never apply development migration commands or auto-seed on production startup.
+Use Reserved VM when publishing. API production supervision starts the compiled API and worker as separate Node processes. Signal collectors and decay run through pg-boss; unconfigured sources are explicitly skipped. Replit Publish manages production schema; never apply development migration commands or auto-seed on production startup. Apply the signal catalogue/data migration explicitly through the production migration process.
 
 After each completed phase, update `CHANGELOG.md`, tick README's phase checklist, and finish with `Ready to commit: <suggested commit message>`. Do not commit or push on the user's behalf.

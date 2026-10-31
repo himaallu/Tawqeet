@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLogout, useGetAgency, getGetAgencyQueryKey, type User } from "@workspace/api-client-react";
-import { Radar, Users, Send, Brain, Layers, Settings, Building2, LogOut, Menu, X, ShieldCheck } from "lucide-react";
+import { Radar, Users, Send, Brain, Layers, Settings, Building2, Activity, LogOut, Menu, X, ShieldCheck } from "lucide-react";
 import { Wordmark } from "@/components/brand";
 import { roleLabel, can } from "@/lib/roles";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +10,6 @@ import { apiErrorMessage } from "@/lib/api-error";
 
 const soon = [
   { label: "Radar", icon: Radar },
-  { label: "Leads", icon: Users },
   { label: "Review & Send", icon: Send },
   { label: "Plays", icon: Layers },
 ];
@@ -37,7 +36,7 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
     <Link href={href} onClick={() => setOpen(false)} data-testid={testid}
       title={label === "Brain" && !clientId ? "Choose a client, then select Open Brain" : undefined}
       className={"group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
-        (selected && !(href === "/settings" && location.startsWith("/settings/system"))
+        (selected && !(href === "/settings" && (location.startsWith("/settings/system") || location.startsWith("/settings/signals")))
           ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_2px_0_0_hsl(var(--sidebar-primary))]"
           : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground")}>
       <Icon className="h-4 w-4" />{label}
@@ -60,10 +59,12 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
             <span className="ml-auto rounded-sm border border-sidebar-foreground/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider">Soon</span>
           </div>
         ))}
+        {perms.viewSignals && item("/leads", "Leads", Users, "nav-leads")}
         {item("/clients", "Clients", Building2, "nav-clients", active("/clients") && !inBrain)}
         {item(clientId ? `/clients/${clientId}/brain` : "/clients", "Brain", Brain, "nav-brain", inBrain)}
         <div className="px-3 pt-5 pb-1.5 text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/45">Admin</div>
         {item("/settings", "Settings", Settings, "nav-settings")}
+        {perms.viewSignals && item("/settings/signals", "Signals", Activity, "nav-signals")}
         {perms.systemChecks && item("/settings/system", "System checks", ShieldCheck, "nav-system")}
       </nav>
       <div className="border-t border-sidebar-border p-4">

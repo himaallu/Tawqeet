@@ -1,0 +1,753 @@
+[
+  {
+    "key": "funding_round",
+    "name": "Raised funding",
+    "description": "The company announced a new investment round (pre-seed to growth) or a significant strategic investment.",
+    "source_types": [
+      "news",
+      "funding",
+      "leadocean"
+    ],
+    "base_weight": 35,
+    "half_life_days": 30,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.6,
+      "hr": 1
+    },
+    "target_personas": [
+      "CEO",
+      "COO",
+      "Head of Growth"
+    ],
+    "keywords_en": [
+      "raises",
+      "raised",
+      "funding round",
+      "seed round",
+      "Series A",
+      "Series B",
+      "Series C",
+      "investment led by",
+      "secures funding"
+    ],
+    "keywords_ar": [
+      "تمويل",
+      "جولة تمويل",
+      "جولة استثمارية",
+      "يجمع",
+      "استثمار بقيمة"
+    ],
+    "exclusions": [
+      "fund launch by an investment firm",
+      "IPO rumour",
+      "government budget"
+    ],
+    "play_hint": "Growth after funding: help them hit the plan the round was raised for.",
+    "is_negative": false
+  },
+  {
+    "key": "expansion_new_market",
+    "name": "Expanding to a new market or office",
+    "description": "The company is entering a new GCC country or city, or opening a new office, branch or HQ. Includes a new location appearing on Google Maps or a new branch listing.",
+    "source_types": [
+      "news",
+      "google_maps"
+    ],
+    "base_weight": 30,
+    "half_life_days": 45,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.8,
+      "hr": 1
+    },
+    "target_personas": [
+      "CEO",
+      "General Manager",
+      "Country Manager"
+    ],
+    "keywords_en": [
+      "expands to",
+      "expansion into",
+      "opens office",
+      "new headquarters",
+      "launches in Saudi",
+      "enters the UAE",
+      "regional HQ"
+    ],
+    "keywords_ar": [
+      "توسع",
+      "افتتاح مكتب",
+      "مقر إقليمي",
+      "يدخل السوق السعودي",
+      "فرع جديد"
+    ],
+    "exclusions": [
+      "retail store opening of a mall brand unless client sells to retail"
+    ],
+    "play_hint": "New market, new pipeline: offer local reach or speed-to-market.",
+    "is_negative": false
+  },
+  {
+    "key": "hiring_sales_role",
+    "name": "Hiring sales or BD roles",
+    "description": "Open roles for SDR, BDR, account executive, business development, sales manager or head of sales.",
+    "source_types": [
+      "careers_page",
+      "hiring",
+      "leadocean"
+    ],
+    "base_weight": 35,
+    "half_life_days": 30,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.7,
+      "hr": 0.8
+    },
+    "target_personas": [
+      "Head of Sales",
+      "CRO",
+      "CEO"
+    ],
+    "keywords_en": [
+      "SDR",
+      "BDR",
+      "Account Executive",
+      "Business Development",
+      "Sales Manager",
+      "Head of Sales"
+    ],
+    "keywords_ar": [
+      "تطوير الأعمال",
+      "مدير مبيعات",
+      "مندوب مبيعات"
+    ],
+    "exclusions": [
+      "retail sales associate",
+      "store sales staff"
+    ],
+    "play_hint": "They're investing in pipeline: offer more meetings while the team ramps.",
+    "is_negative": false
+  },
+  {
+    "key": "hiring_surge",
+    "name": "Hiring surge",
+    "description": "Five or more new open roles appeared on the company's careers page within 30 days.",
+    "source_types": [
+      "careers_page"
+    ],
+    "base_weight": 30,
+    "half_life_days": 21,
+    "vertical_multipliers": {
+      "saas": 0.8,
+      "re": 0.8,
+      "hr": 1
+    },
+    "target_personas": [
+      "HR Director",
+      "Head of Talent Acquisition",
+      "COO"
+    ],
+    "keywords_en": [
+      "we're hiring",
+      "join our team",
+      "open positions"
+    ],
+    "keywords_ar": [
+      "نحن نوظف",
+      "وظائف شاغرة",
+      "انضم إلى فريقنا"
+    ],
+    "exclusions": [
+      "the same roles re-posted"
+    ],
+    "play_hint": "Scaling fast: offer to remove a bottleneck that growth creates.",
+    "is_negative": false
+  },
+  {
+    "key": "leadership_change",
+    "name": "New leader",
+    "description": "A new CEO, CMO, CRO, head of sales, HR or procurement was appointed in the last 90 days. Also covers board appointments and internal promotions into these roles (lower confidence).",
+    "source_types": [
+      "news",
+      "leadocean"
+    ],
+    "base_weight": 30,
+    "half_life_days": 60,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 1,
+      "hr": 1
+    },
+    "target_personas": [
+      "the newly appointed executive"
+    ],
+    "keywords_en": [
+      "appoints",
+      "names",
+      "joins as",
+      "new CEO",
+      "new Chief",
+      "promoted to",
+      "joins the board",
+      "promoted to"
+    ],
+    "keywords_ar": [
+      "تعيين",
+      "رئيساً تنفيذياً",
+      "مديراً عاماً جديداً"
+    ],
+    "exclusions": [
+      "board member only",
+      "interim announcement retracted"
+    ],
+    "play_hint": "New leaders review vendors in their first 90 days: offer a quick win.",
+    "is_negative": false
+  },
+  {
+    "key": "tender_published",
+    "name": "Tender published",
+    "description": "A government or semi-government tender or RFP in the client's category was published.",
+    "source_types": [
+      "tender",
+      "news"
+    ],
+    "base_weight": 35,
+    "half_life_days": 21,
+    "vertical_multipliers": {
+      "saas": 0.6,
+      "re": 1,
+      "hr": 0.6
+    },
+    "target_personas": [
+      "Procurement Manager",
+      "Project Director"
+    ],
+    "keywords_en": [
+      "tender",
+      "RFP",
+      "request for proposal",
+      "invitation to bid",
+      "procurement notice"
+    ],
+    "keywords_ar": [
+      "مناقصة",
+      "طرح مناقصة",
+      "منافسة عامة",
+      "كراسة الشروط"
+    ],
+    "exclusions": [
+      "tender closing date already passed"
+    ],
+    "play_hint": "Help bidders win or deliver the tender (partners, subcontractors, staffing).",
+    "is_negative": false
+  },
+  {
+    "key": "project_award_or_launch",
+    "name": "Project launched or contract awarded",
+    "description": "A real estate or construction project was launched, or a construction/infrastructure contract was awarded.",
+    "source_types": [
+      "news"
+    ],
+    "base_weight": 35,
+    "half_life_days": 30,
+    "vertical_multipliers": {
+      "saas": 0.4,
+      "re": 1,
+      "hr": 0.8
+    },
+    "target_personas": [
+      "Development Director",
+      "Project Director",
+      "Procurement Manager"
+    ],
+    "keywords_en": [
+      "awarded contract",
+      "wins contract",
+      "launches project",
+      "master development",
+      "groundbreaking",
+      "phase launch"
+    ],
+    "keywords_ar": [
+      "ترسية عقد",
+      "إطلاق مشروع",
+      "وضع حجر الأساس",
+      "منح عقد"
+    ],
+    "exclusions": [
+      "project cancelled",
+      "rumoured project"
+    ],
+    "play_hint": "Big project, new needs: staffing, suppliers, software, marketing.",
+    "is_negative": false
+  },
+  {
+    "key": "new_company_registration",
+    "name": "New company or free-zone setup",
+    "description": "A company was newly licensed or set up an entity in a UAE/GCC free zone or mainland.",
+    "source_types": [
+      "registry",
+      "news"
+    ],
+    "base_weight": 15,
+    "half_life_days": 90,
+    "vertical_multipliers": {
+      "saas": 0.8,
+      "re": 0.6,
+      "hr": 0.8
+    },
+    "target_personas": [
+      "Founder",
+      "Managing Director"
+    ],
+    "keywords_en": [
+      "sets up in",
+      "registers in DIFC",
+      "joins DMCC",
+      "licensed in ADGM",
+      "establishes entity"
+    ],
+    "keywords_ar": [
+      "تأسيس شركة",
+      "ترخيص جديد",
+      "المنطقة الحرة"
+    ],
+    "exclusions": [
+      "shell company with no activity"
+    ],
+    "play_hint": "New in the market: offer setup essentials and first customers.",
+    "is_negative": false
+  },
+  {
+    "key": "product_launch",
+    "name": "Product or service launch",
+    "description": "The company launched a new product, service line or major feature.",
+    "source_types": [
+      "news"
+    ],
+    "base_weight": 20,
+    "half_life_days": 30,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.6,
+      "hr": 0.6
+    },
+    "target_personas": [
+      "Head of Marketing",
+      "Head of Product"
+    ],
+    "keywords_en": [
+      "launches",
+      "unveils",
+      "introduces",
+      "now available"
+    ],
+    "keywords_ar": [
+      "تطلق",
+      "تكشف عن",
+      "إطلاق خدمة"
+    ],
+    "exclusions": [
+      "minor update",
+      "promotional discount"
+    ],
+    "play_hint": "Launch needs reach: offer demand generation for the new product.",
+    "is_negative": false
+  },
+  {
+    "key": "partnership_announced",
+    "name": "Partnership announced",
+    "description": "A partnership, distribution, reseller or strategic alliance was announced.",
+    "source_types": [
+      "news"
+    ],
+    "base_weight": 20,
+    "half_life_days": 30,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.8,
+      "hr": 0.8
+    },
+    "target_personas": [
+      "Head of Business Development",
+      "CEO"
+    ],
+    "keywords_en": [
+      "partners with",
+      "partnership",
+      "MoU",
+      "strategic alliance",
+      "distribution agreement"
+    ],
+    "keywords_ar": [
+      "شراكة",
+      "مذكرة تفاهم",
+      "اتفاقية توزيع"
+    ],
+    "exclusions": [
+      "sponsorship only"
+    ],
+    "play_hint": "New partnership, new go-to-market: offer to support the rollout.",
+    "is_negative": false
+  },
+  {
+    "key": "event_exhibitor",
+    "name": "Exhibiting, sponsoring or speaking at an event",
+    "description": "The company is exhibiting, sponsoring, giving a keynote or sending a team to a major regional event in the next 30 days, or just did.",
+    "source_types": [
+      "event",
+      "news"
+    ],
+    "base_weight": 20,
+    "half_life_days": 14,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 1,
+      "hr": 0.6
+    },
+    "target_personas": [
+      "Head of Marketing",
+      "Head of Sales"
+    ],
+    "keywords_en": [
+      "GITEX",
+      "LEAP",
+      "Cityscape",
+      "Big 5",
+      "Arabian Travel Market",
+      "exhibitor",
+      "booth",
+      "speaker",
+      "sponsor",
+      "keynote",
+      "headline partner"
+    ],
+    "keywords_ar": [
+      "جيتكس",
+      "معرض",
+      "جناح",
+      "متحدث"
+    ],
+    "exclusions": [
+      "attendee only"
+    ],
+    "play_hint": "Before: book a meeting at the event. After: follow up on event leads.",
+    "is_negative": false
+  },
+  {
+    "key": "tech_stack_change",
+    "name": "Tech stack change",
+    "description": "The company adopted, migrated to or dropped a tool relevant to the client (including a competitor). Also covers adopting complementary tools in the client's ecosystem (stack adjacency) and hosting/CDN migrations.",
+    "source_types": [
+      "leadocean",
+      "careers_page"
+    ],
+    "base_weight": 20,
+    "half_life_days": 45,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.4,
+      "hr": 0.6
+    },
+    "target_personas": [
+      "CTO",
+      "Head of Operations",
+      "RevOps"
+    ],
+    "keywords_en": [
+      "migrating to",
+      "experience with <tool>",
+      "implemented",
+      "switched to"
+    ],
+    "keywords_ar": [
+      "الانتقال إلى",
+      "تطبيق نظام"
+    ],
+    "exclusions": [
+      "tool mentioned only as a nice-to-have skill"
+    ],
+    "play_hint": "Tool change means a window: offer integration or a better alternative.",
+    "is_negative": false
+  },
+  {
+    "key": "champion_job_change",
+    "name": "Past champion joined a new company",
+    "description": "A contact from the client's CRM (past customer, champion or engaged lead) started a new role at a different company in the last 90 days.",
+    "source_types": [
+      "crm",
+      "leadocean"
+    ],
+    "base_weight": 35,
+    "half_life_days": 60,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 1,
+      "hr": 1
+    },
+    "target_personas": [
+      "the former champion"
+    ],
+    "keywords_en": [],
+    "keywords_ar": [],
+    "exclusions": [
+      "contact left to a company outside the client's ICP"
+    ],
+    "play_hint": "Warm re-introduction: they already know and trust the client.",
+    "is_negative": false
+  },
+  {
+    "key": "acquisition_merger",
+    "name": "Acquisition or merger",
+    "description": "The company acquired another company, merged, or was acquired.",
+    "source_types": [
+      "news"
+    ],
+    "base_weight": 30,
+    "half_life_days": 90,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.8,
+      "hr": 1
+    },
+    "target_personas": [
+      "CEO",
+      "COO",
+      "Head of Integration",
+      "HR Director"
+    ],
+    "keywords_en": [
+      "acquires",
+      "acquisition",
+      "merger",
+      "merges with",
+      "to be acquired"
+    ],
+    "keywords_ar": [
+      "استحواذ",
+      "اندماج",
+      "تستحوذ على"
+    ],
+    "exclusions": [
+      "rumoured deal",
+      "deal called off"
+    ],
+    "play_hint": "Integration window: systems, teams and vendors get consolidated in the next 90 days.",
+    "is_negative": false
+  },
+  {
+    "key": "regulation_change",
+    "name": "New regulation affecting the industry",
+    "description": "A new law, mandate or deadline affects the company's industry in the UAE or KSA (e.g. e-invoicing, corporate tax, Emiratisation or Saudisation quotas, data protection). Industry-level: applies to every company in the affected industries.",
+    "source_types": [
+      "news",
+      "government"
+    ],
+    "base_weight": 25,
+    "half_life_days": 60,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.8,
+      "hr": 1
+    },
+    "target_personas": [
+      "CFO",
+      "Head of Compliance",
+      "HR Director"
+    ],
+    "keywords_en": [
+      "mandate",
+      "deadline",
+      "new law",
+      "regulation",
+      "compliance requirement",
+      "e-invoicing",
+      "Emiratisation",
+      "Saudisation",
+      "Nitaqat"
+    ],
+    "keywords_ar": [
+      "قرار",
+      "لائحة",
+      "الفوترة الإلكترونية",
+      "التوطين",
+      "نطاقات"
+    ],
+    "exclusions": [
+      "draft consultation with no date"
+    ],
+    "play_hint": "Deadline-driven: help them comply before the date.",
+    "is_negative": false,
+    "scope": "industry"
+  },
+  {
+    "key": "investor_update_growth",
+    "name": "Listed company growth disclosure",
+    "description": "A listed company (DFM, ADX, Tadawul) disclosed results or plans that mention growth, new projects, capex or expansion.",
+    "source_types": [
+      "news",
+      "exchange_disclosure"
+    ],
+    "base_weight": 20,
+    "half_life_days": 45,
+    "vertical_multipliers": {
+      "saas": 0.8,
+      "re": 1,
+      "hr": 0.8
+    },
+    "target_personas": [
+      "CFO",
+      "COO",
+      "Head of Strategy"
+    ],
+    "keywords_en": [
+      "results",
+      "guidance",
+      "capex",
+      "growth strategy",
+      "investor presentation"
+    ],
+    "keywords_ar": [
+      "النتائج المالية",
+      "خطة توسع",
+      "الإفصاح"
+    ],
+    "exclusions": [
+      "results showing losses and cost-cutting"
+    ],
+    "play_hint": "Tie the offer to the priorities they just announced to investors.",
+    "is_negative": false
+  },
+  {
+    "key": "award_recognition",
+    "name": "Award or ranking",
+    "description": "The company won an industry award or was named in a ranking.",
+    "source_types": [
+      "news"
+    ],
+    "base_weight": 15,
+    "half_life_days": 30,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 1,
+      "hr": 0.8
+    },
+    "target_personas": [
+      "CEO",
+      "Head of Marketing"
+    ],
+    "keywords_en": [
+      "wins award",
+      "named best",
+      "awarded",
+      "ranked"
+    ],
+    "keywords_ar": [
+      "جائزة",
+      "تفوز",
+      "تكريم"
+    ],
+    "exclusions": [
+      "sponsored or pay-to-enter lists"
+    ],
+    "play_hint": "Congratulate, then link the win to what comes next.",
+    "is_negative": false
+  },
+  {
+    "key": "certification_acquired",
+    "name": "Security or quality certification",
+    "description": "The company obtained SOC 2, ISO 27001, ISO 9001 or a similar certification, often a sign of moving upmarket.",
+    "source_types": [
+      "news",
+      "website"
+    ],
+    "base_weight": 15,
+    "half_life_days": 60,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.6,
+      "hr": 0.6
+    },
+    "target_personas": [
+      "CTO",
+      "Head of Sales",
+      "COO"
+    ],
+    "keywords_en": [
+      "SOC 2",
+      "ISO 27001",
+      "ISO 9001",
+      "certified",
+      "certification"
+    ],
+    "keywords_ar": [
+      "شهادة الأيزو",
+      "حصلت على شهادة"
+    ],
+    "exclusions": [
+      "renewal of an existing certificate"
+    ],
+    "play_hint": "Moving into enterprise deals: offer what enterprise buyers expect next.",
+    "is_negative": false
+  },
+  {
+    "key": "website_change",
+    "name": "Website or messaging change",
+    "description": "The homepage hero message, pricing page or integrations page changed meaningfully, or the site was redesigned.",
+    "source_types": [
+      "website"
+    ],
+    "base_weight": 15,
+    "half_life_days": 21,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 0.6,
+      "hr": 0.6
+    },
+    "target_personas": [
+      "Head of Marketing",
+      "CEO"
+    ],
+    "keywords_en": [],
+    "keywords_ar": [],
+    "exclusions": [
+      "minor text edits",
+      "date or cookie banner changes"
+    ],
+    "play_hint": "Reference the new positioning; offer what that new focus needs.",
+    "is_negative": false
+  },
+  {
+    "key": "layoffs_or_freeze",
+    "name": "Layoffs or hiring freeze",
+    "description": "Layoffs, a hiring freeze or restructuring was announced. Lowers the score; never triggers outreach alone.",
+    "source_types": [
+      "news"
+    ],
+    "base_weight": -25,
+    "half_life_days": 60,
+    "vertical_multipliers": {
+      "saas": 1,
+      "re": 1,
+      "hr": 1
+    },
+    "target_personas": [],
+    "keywords_en": [
+      "layoffs",
+      "lays off",
+      "job cuts",
+      "hiring freeze",
+      "restructuring"
+    ],
+    "keywords_ar": [
+      "تسريح",
+      "خفض الوظائف",
+      "تجميد التوظيف",
+      "إعادة هيكلة"
+    ],
+    "exclusions": [],
+    "play_hint": "Pause outreach.",
+    "is_negative": true
+  }
+]

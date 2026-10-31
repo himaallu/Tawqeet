@@ -300,8 +300,109 @@ paths:
           content:
             application/json:
               schema: { type: array, items: { $ref: "#/components/schemas/BrainEntry" } }
+  /settings/signals:
+    get:
+      operationId: listSignalDefinitions
+      tags: [signals]
+      responses:
+        "200":
+          description: Signal catalogue
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, definitions]
+                properties:
+                  count: { type: integer }
+                  definitions:
+                    type: array
+                    items: { $ref: "#/components/schemas/SignalDefinition" }
+  /settings/signals/{key}:
+    patch:
+      operationId: updateSignalDefinition
+      tags: [signals]
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignalDefinitionInput" }
+      responses:
+        "200":
+          description: Definition saved and lead scores recalculated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SignalDefinition" }
+  /leads/signals:
+    get:
+      operationId: listSignalLeads
+      tags: [signals]
+      responses:
+        "200":
+          description: Tenant leads and their evidence
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SignalLead" }
 components:
   schemas:
+    SignalDefinitionInput:
+      type: object
+      required: [baseWeight, halfLifeDays, verticalMultipliers, keywordsEn, keywordsAr, active]
+      properties:
+        baseWeight: { type: integer, minimum: -40, maximum: 40 }
+        halfLifeDays: { type: integer, minimum: 1, maximum: 3650 }
+        verticalMultipliers:
+          type: object
+          required: [saas, re, hr]
+          properties:
+            saas: { type: number, minimum: 0, maximum: 10 }
+            re: { type: number, minimum: 0, maximum: 10 }
+            hr: { type: number, minimum: 0, maximum: 10 }
+        keywordsEn: { type: array, maxItems: 100, items: { type: string, maxLength: 200 } }
+        keywordsAr: { type: array, maxItems: 100, items: { type: string, maxLength: 200 } }
+        active: { type: boolean }
+    SignalDefinition:
+      allOf:
+        - { $ref: "#/components/schemas/SignalDefinitionInput" }
+        - type: object
+          required: [id, key, name, description, sourceTypes, targetPersonas, exclusions, playHint, isNegative, scope]
+          properties:
+            id: { type: string }
+            key: { type: string }
+            name: { type: string }
+            description: { type: string }
+            sourceTypes: { type: array, items: { type: string } }
+            targetPersonas: { type: array, items: { type: string } }
+            exclusions: { type: array, items: { type: string } }
+            playHint: { type: string }
+            isNegative: { type: boolean }
+            scope: { type: string, enum: [company, industry] }
+    SignalLead:
+      type: object
+      required: [id, fullName, companyName, clientName, totalScore, signalPoints, signals]
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        companyName: { type: string }
+        clientName: { type: string }
+        totalScore: { type: integer }
+        signalPoints: { type: number }
+        signals:
+          type: array
+          items:
+            type: object
+            required: [id, name, title, evidenceQuote, url, detectedAt, points]
+            properties:
+              id: { type: string }
+              name: { type: string }
+              title: { type: string }
+              evidenceQuote: { type: string }
+              url: { type: string, nullable: true }
+              detectedAt: { type: string }
+              points: { type: number }
     BrainProfileInput:
       type: object
       required: [offer, whoYouSellTo, dealSize, topPains, proofPoints, wordsToNeverUse, languages, tone, differentiators, noGoClaims]

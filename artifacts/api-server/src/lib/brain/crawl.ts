@@ -26,7 +26,7 @@ function isPublic(address: string) {
 }
 
 /** DNS is validated AND pinned for each request/redirect to prevent DNS rebinding. */
-export async function fetchPublicHtml(raw: string, allowedDomain?: string, redirects = 0): Promise<{ url: string; html: string }> {
+export async function fetchPublicHtml(raw: string, allowedDomain?: string, redirects = 0, allowXml = false): Promise<{ url: string; html: string }> {
   const url = parsePublicUrl(raw);
   if (allowedDomain && domain(url) !== allowedDomain) throw new BrainError(400, "Redirect left the website's domain.");
   const host = url.hostname.replace(/^\[|\]$/g, "");
@@ -41,7 +41,7 @@ export async function fetchPublicHtml(raw: string, allowedDomain?: string, redir
     const transport = url.protocol === "https:" ? https : http;
     const request = transport.request(url, {
       method: "GET",
-      headers: { "User-Agent": "TawqeetBrain/1.0", Accept: "text/html,application/xhtml+xml" },
+      headers: { "User-Agent": "TawqeetBrain/1.0", Accept: allowXml ? "application/rss+xml,application/atom+xml,application/xml,text/xml,text/html" : "text/html,application/xhtml+xml" },
       family: address.family,
       signal: AbortSignal.timeout(12_000),
       lookup: (_host, _options, cb) => cb(null, address.address, address.family),
@@ -51,13 +51,15 @@ export async function fetchPublicHtml(raw: string, allowedDomain?: string, redir
         if (redirects >= 4) { reject(new BrainError(422, "Too many website redirects.")); return; }
         let next: URL;
         try { next = new URL(response.headers.location, url); } catch { reject(new BrainError(422, "Invalid website redirect.")); return; }
-        resolve(fetchPublicHtml(next.href, allowedDomain, redirects + 1));
+        resolve(fetchPublicHtml(next.href, allowedDomain, redirects + 1, allowXml));
         return;
       }
       if ((response.statusCode || 500) >= 400) {
         response.resume(); reject(new BrainError(422, `Website returned HTTP ${response.statusCode}.`)); return;
       }
-      if (!/^(text\/html|application\/xhtml\+xml)/i.test(response.headers["content-type"] || "")) {
+      const contentType = response.headers["content-type"] || "";
+      if (!/^(text\/html|application\/xhtml\+xml)/i.test(contentType)
+        && !(allowXml && /^(application\/(rss\+xml|atom\+xml|xml)|text\/xml)/i.test(contentType))) {
         response.resume(); reject(new BrainError(422, "The URL must point to an HTML web page.")); return;
       }
       let size = 0;

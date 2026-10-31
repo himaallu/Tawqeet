@@ -14,6 +14,7 @@ export const leads = pgTable("leads", {
   linkedinUrl: text("linkedin_url"),
   emailVerified: boolean("email_verified").notNull().default(false),
   tempScore: integer("temp_score").notNull().default(0),
+  fitScore: integer("fit_score").notNull().default(0),
   temperature: text("temperature", { enum: ["hot", "warm", "cold"] }).notNull().default("cold"),
   whyNow: text("why_now"),
   status: text("status", { enum: ["new", "drafted", "ready", "sent", "replied", "closed"] }).notNull().default("new"),

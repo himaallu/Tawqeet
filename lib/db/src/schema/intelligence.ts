@@ -68,12 +68,22 @@ export const signalDefinitions = pgTable("signal_definitions", {
   id: uuid("id").defaultRandom().primaryKey(),
   key: text("key").notNull().unique(),
   name: text("name").notNull(),
-  sourceType: text("source_type", { enum: ["news", "funding", "hiring", "careers_page", "tender", "registry", "leadership"] }).notNull(),
+  sourceType: text("source_type").notNull(),
+  description: text("description").notNull().default(""),
+  sourceTypes: text("source_types").array().notNull().default([]),
+  verticalMultipliers: jsonb("vertical_multipliers").$type<{ saas: number; re: number; hr: number }>().notNull().default({ saas: 1, re: 1, hr: 1 }),
+  targetPersonas: text("target_personas").array().notNull().default([]),
+  keywordsEn: text("keywords_en").array().notNull().default([]),
+  keywordsAr: text("keywords_ar").array().notNull().default([]),
+  exclusions: text("exclusions").array().notNull().default([]),
+  playHint: text("play_hint").notNull().default(""),
+  isNegative: boolean("is_negative").notNull().default(false),
+  scope: text("scope", { enum: ["company", "industry"] }).notNull().default("company"),
   baseWeight: integer("base_weight").notNull(),
   halfLifeDays: integer("half_life_days").notNull(),
   active: boolean("active").notNull().default(true),
-}, t => [check("signal_weight_range", sql`${t.baseWeight} between 0 and 40`), check("signal_half_life_positive", sql`${t.halfLifeDays} > 0`),
-  check("signal_source_type_valid", sql`${t.sourceType} in ('news','funding','hiring','careers_page','tender','registry','leadership')`)]);
+}, t => [check("signal_weight_range", sql`${t.baseWeight} between -40 and 40`), check("signal_half_life_positive", sql`${t.halfLifeDays} > 0`),
+  check("signal_scope_valid", sql`${t.scope} in ('company','industry')`)]);
 
 export const companies = pgTable("companies", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -88,8 +98,13 @@ export const companies = pgTable("companies", {
 export const signals = pgTable("signals", {
   id: uuid("id").defaultRandom().primaryKey(),
   agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
-  companyId: uuid("company_id").notNull(),
+  companyId: uuid("company_id"),
   definitionKey: text("definition_key").notNull().references(() => signalDefinitions.key),
+  scope: text("scope", { enum: ["company", "industry"] }).notNull().default("company"),
+  affectedIndustries: text("affected_industries").array().notNull().default([]),
+  affectedCountries: text("affected_countries").array().notNull().default([]),
+  evidenceQuote: text("evidence_quote").notNull().default(""),
+  externalKey: text("external_key"),
   title: text("title").notNull(),
   url: text("url"),
   source: text("source"),
@@ -98,6 +113,28 @@ export const signals = pgTable("signals", {
   raw: jsonb("raw").notNull().default({}),
 }, t => [
   unique("signals_tenant_key").on(t.id, t.agencyId),
+  unique("signals_external_per_agency").on(t.agencyId, t.externalKey),
+  check("signal_company_scope", sql`(${t.scope} = 'company' and ${t.companyId} is not null) or (${t.scope} = 'industry' and ${t.companyId} is null and cardinality(${t.affectedIndustries}) > 0 and cardinality(${t.affectedCountries}) > 0)`),
   foreignKey({ columns: [t.companyId, t.agencyId], foreignColumns: [companies.id, companies.agencyId] }).onDelete("cascade"),
   index("signals_agency_time_idx").on(t.agencyId, t.detectedAt),
 ]);
+
+export const signalSnapshots = pgTable("signal_snapshots", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
+  companyId: uuid("company_id").notNull(),
+  url: text("url").notNull(),
+  text: text("text").notNull(),
+  observedAt: timestamp("observed_at", { withTimezone: true }).notNull().defaultNow(),
+  meta: jsonb("meta").$type<Record<string, unknown>>().notNull().default({}),
+}, t => [
+  unique("signal_snapshot_url").on(t.agencyId, t.url),
+  foreignKey({ columns: [t.companyId, t.agencyId], foreignColumns: [companies.id, companies.agencyId] }).onDelete("cascade"),
+]);
+
+export const signalReceipts = pgTable("signal_receipts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
+  fingerprint: text("fingerprint").notNull(),
+  processedAt: timestamp("processed_at", { withTimezone: true }).notNull().defaultNow(),
+}, t => [unique("signal_receipt_per_agency").on(t.agencyId, t.fingerprint)]);

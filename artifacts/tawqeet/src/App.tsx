@@ -17,6 +17,8 @@ import ClientDetailPage from '@/pages/client-detail';
 import ClientBrainPage from '@/pages/client-brain';
 import SettingsPage from '@/pages/settings';
 import SystemPage from '@/pages/system';
+import SignalsPage from '@/pages/signals';
+import LeadsPage from '@/pages/leads';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
 
@@ -47,6 +49,8 @@ function Gate() {
           <Route path="/clients/:id/brain"><ClientBrainPage user={user} /></Route>
           <Route path="/clients/:id"><ClientDetailPage user={user} /></Route>
           <Route path="/settings"><SettingsPage user={user} /></Route>
+          <Route path="/settings/signals"><SignalsPage user={user} /></Route>
+          <Route path="/leads"><LeadsPage user={user} /></Route>
           <Route path="/settings/system"><SystemPage user={user} /></Route>
           <Route component={NotFound} />
         </Switch>
