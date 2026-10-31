@@ -27,6 +27,10 @@ import BillingPage from '@/pages/billing';
 import CompliancePage from '@/pages/compliance';
 import ReportsPage from '@/pages/reports';
 import LandingPage from '@/pages/landing';
+import PlaysPage from '@/pages/plays';
+import MailboxesPage from '@/pages/mailboxes';
+import SharePage from '@/pages/share';
+import { ViewerShell } from '@/components/viewer-shell';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
 
@@ -35,6 +39,7 @@ function Gate() {
   const [location] = useLocation();
 
   if (location === '/welcome') return <LandingPage />;
+  if (location.startsWith('/share/')) return <Route path="/share/:token"><SharePage /></Route>;
   if (location === '/auth/confirm') {
     if (session.data?.user) return <Redirect to="/clients" />;
     return <ConfirmPage />;
@@ -47,6 +52,18 @@ function Gate() {
   );
   const user = session.data.user;
   if (!user) return <LoginPage loginConfigured={session.data.loginConfigured} />;
+  if (user.role === 'client_viewer') return (
+    <ViewerShell user={user}>
+      <RoutedErrorBoundary>
+        <Switch>
+          <Route path="/reports"><ReportsPage /></Route>
+          <Route path="/plays"><PlaysPage /></Route>
+          <Route path="/settings/mailboxes"><MailboxesPage /></Route>
+          <Route><Redirect to="/reports" /></Route>
+        </Switch>
+      </RoutedErrorBoundary>
+    </ViewerShell>
+  );
 
   return (
     <AppShell user={user}>

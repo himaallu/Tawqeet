@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  useGetReviewQueue, getGetReviewQueueQueryKey, useApproveAndSendDraft, useMarkSendReply,
+  useGetReviewQueue, getGetReviewQueueQueryKey, useApproveAndSendDraft, useMarkSendReply, useResumeClientSending,
   type ReviewItem, type ReplyInputReplyClass,
 } from "@workspace/api-client-react";
 import { Send, ShieldAlert, CheckCircle2, Mail, ExternalLink } from "lucide-react";
@@ -23,12 +23,16 @@ const OPT_OUT = /reply no|won.t follow|unsubscribe|reply .?stop|لن أتابع|
 const replies: { key: ReplyInputReplyClass; label: string }[] = [
   { key: "positive", label: "Positive" }, { key: "neutral", label: "Neutral" },
   { key: "negative", label: "Negative" }, { key: "unsubscribe", label: "Unsubscribe" },
+  { key: "bounce", label: "Bounced" }, { key: "complaint", label: "Spam complaint" },
 ];
 
 export default function ReviewPage() {
   const q = useGetReviewQueue({ query: { queryKey: getGetReviewQueueQueryKey() } });
   const [openId, setOpenId] = useState<string | null>(null);
   const selected = q.data?.items.find((i) => i.leadId === openId) ?? null;
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const resume = useResumeClientSending();
 
   return (
     <div className="rise">
@@ -39,6 +43,14 @@ export default function ReviewPage() {
         <Mail className="h-4 w-4 text-accent shrink-0 mt-0.5" />
         <span>Demo mode: approved emails are delivered only to the demo recipient{q.data?.recipient ? <> (<span className="font-mono">{q.data.recipient}</span>)</> : <> — <span className="text-destructive">no recipient configured (set ALERT_EMAIL_TO or OWNER_EMAIL)</span></>}, never to the lead.</span>
       </div>
+      {q.data?.paused.map((p) => (
+        <div key={p.clientId} role="alert" className="mb-5 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm flex flex-wrap items-center gap-3" data-testid="banner-paused">
+          <ShieldAlert className="h-4 w-4 text-destructive shrink-0" />
+          <span className="flex-1"><span className="font-medium">Sending paused for {p.clientName}</span> since {format(new Date(p.pausedAt), "d MMM HH:mm")}: {p.reason}. Auto-pause triggers above 3% bounces or 3+ unsubscribes/complaints in a day.</span>
+          <Button size="sm" variant="outline" disabled={resume.isPending} data-testid="button-resume-sending"
+            onClick={() => resume.mutate({ id: p.clientId }, { onSuccess: (r) => { toast({ title: r.message }); qc.invalidateQueries({ queryKey: getGetReviewQueueQueryKey() }); } })}>Resume sending</Button>
+        </div>
+      ))}
       {q.isLoading ? <Skeleton className="h-72" /> : q.isError || !q.data ? <ErrorPanel message={apiErrorMessage(q.error)} onRetry={() => q.refetch()} /> :
         q.data.items.length === 0 ? (
           <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">No drafts yet. Go to <Link href="/settings" className="text-accent underline">Settings → Load demo data</Link>.</div>
@@ -145,11 +157,11 @@ function ReviewPanel({ item, recipient }: { item: ReviewItem; recipient: string 
         </div>
       ) : (
         <div className="rounded-md border bg-secondary/30 p-4 space-y-3" data-testid="panel-sent">
-          <p className="text-sm">Sent {item.send && format(new Date(item.send.sentAt), "d MMM yyyy, HH:mm")} to <span className="font-mono">{item.send?.recipient}</span>{item.send?.approvedBy ? <> · approved by {item.send.approvedBy}</> : null}</p>
+          <p className="text-sm">Sent {item.send && format(new Date(item.send.sentAt), "d MMM yyyy, HH:mm")} to <span className="font-mono">{item.send?.recipient}</span>{item.send?.approvedBy ? <> · approved by {item.send.approvedBy}</> : null}{item.send?.abArm ? <> · A/B {item.send.abArm}</> : null}{item.send?.deliveryEvent ? <span className="text-destructive"> · {item.send.deliveryEvent}</span> : null}</p>
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Mark reply {item.send?.replyClass && <span className="normal-case text-accent">· current: {item.send.replyClass}</span>}</div>
           <div className="flex flex-wrap gap-2">
             {replies.map((r) => (
-              <Button key={r.key} size="sm" variant={item.send?.replyClass === r.key ? "default" : "outline"} disabled={reply.isPending}
+              <Button key={r.key} size="sm" variant={item.send?.replyClass === r.key || item.send?.deliveryEvent === r.key ? "default" : "outline"} disabled={reply.isPending}
                 data-testid={`button-reply-${r.key}`}
                 onClick={() => reply.mutate({ id: item.send!.id, data: { replyClass: r.key } }, {
                   onSuccess: (m) => { toast({ title: "Reply recorded", description: m.message }); refresh(); },

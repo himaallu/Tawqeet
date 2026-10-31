@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetAlertSettings, getGetAlertSettingsQueryKey, useSendTestAlert, type TestAlertInputChannel } from "@workspace/api-client-react";
+import { useGetAlertSettings, getGetAlertSettingsQueryKey, useSendTestAlert, useSendDigestNow, type TestAlertInputChannel } from "@workspace/api-client-react";
 import { BellRing, Mail, MessageSquare, Trello, ListChecks, CheckSquare, Webhook } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,11 @@ export default function AlertsPage() {
   const { toast } = useToast();
   const q = useGetAlertSettings({ query: { queryKey: getGetAlertSettingsQueryKey() } });
   const test = useSendTestAlert();
+  const digest = useSendDigestNow();
+  const sendDigest = (kind: "warm" | "cold") => digest.mutate({ data: { kind } }, {
+    onSuccess: (r) => { toast({ title: kind === "warm" ? "Warm digest" : "Cold weekly summary", description: r.message }); qc.invalidateQueries({ queryKey: getGetAlertSettingsQueryKey() }); },
+    onError: (e) => toast({ title: "Digest failed", description: apiErrorMessage(e), variant: "destructive" }),
+  });
   const fire = (channel: TestAlertInputChannel) => test.mutate({ data: { channel } }, {
     onSuccess: (r) => { toast({ title: "Test alert", description: r.message }); qc.invalidateQueries({ queryKey: getGetAlertSettingsQueryKey() }); },
     onError: (e) => toast({ title: "Test failed", description: apiErrorMessage(e), variant: "destructive" }),
@@ -41,6 +46,16 @@ export default function AlertsPage() {
               );
             })}
           </div>
+          <section className="rounded-lg border bg-card p-5 mb-10 flex flex-col md:flex-row md:items-center gap-4" data-testid="panel-digests">
+            <div className="flex-1">
+              <h2 className="font-display text-xl">Digests</h2>
+              <p className="text-sm text-muted-foreground mt-1">Warm digest: 08:30 Gulf time every workday (Mon–Fri), one email listing new Warm leads. Cold watchlist: 08:30 on the first workday of the week (Monday). Sent by the worker to the alert email recipient.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" disabled={digest.isPending} onClick={() => sendDigest("warm")} data-testid="button-digest-warm">Send Warm digest now</Button>
+              <Button variant="outline" disabled={digest.isPending} onClick={() => sendDigest("cold")} data-testid="button-digest-cold">Send Cold summary now</Button>
+            </div>
+          </section>
           <h2 className="font-display text-2xl mb-3">Alert log</h2>
           {q.data.log.length === 0 ? <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">No alerts yet. Load demo data or send a test alert.</div> : (
             <div className="rounded-lg border bg-card overflow-x-auto">
