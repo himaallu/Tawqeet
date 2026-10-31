@@ -1,1 +1,2 @@
 - [Drizzle peer alignment](drizzle-peer-alignment.md) — keep optional peer sets aligned across API and database packages to avoid incompatible SQL/column types.
+- [Connection attachment visibility](connection-attachment-visibility.md) — a replacement integration must be attached from the Replit account that authorized it.
