@@ -53,3 +53,13 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+.env*
+!.env.example
+uploads/
+*.log
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+/generated-artifacts/

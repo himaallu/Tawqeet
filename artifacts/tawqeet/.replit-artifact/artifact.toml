@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Tawqeet"
+description = "The agency workspace for B2B outbound teams in the UAE and GCC. Foundation with secure magic-link sign-in, tenant-scoped clients and system configuration checks."
+version = "1.0.0"
+id = "artifacts/tawqeet"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19021
+
+[services.development]
+run = "pnpm --filter @workspace/tawqeet run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tawqeet", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tawqeet/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19021"
+BASE_PATH = "/"

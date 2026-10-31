@@ -1,36 +1,252 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Tawqeet foundation API
 servers:
   - url: /api
-    description: Base API path
-tags:
-  - name: health
-    description: Health operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
-      tags: [health]
-      summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
           content:
             application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+  /auth/session:
+    get:
+      operationId: getSession
+      responses:
+        "200":
+          description: Current session (public; user is null when signed out)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SessionInfo" }
+  /auth/magic-link:
+    post:
+      operationId: requestMagicLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MagicLinkInput" }
+      responses:
+        "200":
+          description: Link requested
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /auth/verify:
+    post:
+      operationId: verifyMagicLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LinkVerificationInput" }
+      responses:
+        "200":
+          description: One-time link consumed and HttpOnly session cookie set
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /auth/logout:
+    post:
+      operationId: logout
+      responses:
+        "200":
+          description: Session ended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /agency:
+    get:
+      operationId: getAgency
+      responses:
+        "200":
+          description: Signed-in agency
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Agency" }
+    patch:
+      operationId: updateAgency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AgencyInput" }
+      responses:
+        "200":
+          description: Agency saved (owner only)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Agency" }
+  /clients:
+    get:
+      operationId: listClients
+      responses:
+        "200":
+          description: Agency clients
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/HealthStatus"
+                type: array
+                items: { $ref: "#/components/schemas/Client" }
+    post:
+      operationId: createClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClientInput" }
+      responses:
+        "201":
+          description: Client created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Client" }
+  /clients/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getClient
+      responses:
+        "200":
+          description: Client details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Client" }
+    patch:
+      operationId: updateClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClientInput" }
+      responses:
+        "200":
+          description: Client saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Client" }
+    delete:
+      operationId: deleteClient
+      responses:
+        "200":
+          description: Client deleted (owner only)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /settings/system:
+    get:
+      operationId: getSystemCheck
+      responses:
+        "200":
+          description: Configuration checks (owner only, never returns secrets)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SystemCheck" }
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+    Message:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+    MagicLinkInput:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+    LinkVerificationInput:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string, pattern: "^[A-Za-z0-9_-]{43}$" }
+    User:
+      type: object
+      required: [id, agencyId, email, role]
+      properties:
+        id: { type: string }
+        agencyId: { type: string }
+        email: { type: string }
+        role: { type: string, enum: [owner, member, client_viewer] }
+    SessionInfo:
+      type: object
+      required: [user, loginConfigured]
+      properties:
+        user:
+          anyOf:
+            - { $ref: "#/components/schemas/User" }
+            - { type: "null" }
+        loginConfigured: { type: boolean }
+    Agency:
+      type: object
+      required: [id, name, plan, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        plan: { type: string }
+        createdAt: { type: string }
+    AgencyInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+    ClientInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        website: { type: string, maxLength: 2048 }
+        verticals: { type: array, items: { type: string } }
+        regions: { type: array, items: { type: string } }
+        languages: { type: array, items: { type: string } }
+        offer: { type: string, maxLength: 10000 }
+        icp: { type: object, additionalProperties: true }
+        tone: { type: string, maxLength: 1000 }
+        noGoClaims: { type: array, items: { type: string } }
+    Client:
+      type: object
+      required: [id, agencyId, name, website, verticals, regions, languages, offer, icp, tone, noGoClaims, createdAt]
+      properties:
+        id: { type: string }
+        agencyId: { type: string }
+        name: { type: string }
+        website: { type: string }
+        verticals: { type: array, items: { type: string } }
+        regions: { type: array, items: { type: string } }
+        languages: { type: array, items: { type: string } }
+        offer: { type: string }
+        icp: { type: object, additionalProperties: true }
+        tone: { type: string }
+        noGoClaims: { type: array, items: { type: string } }
+        createdAt: { type: string }
+    SystemCheck:
+      type: object
+      required: [checkedAt, checks]
+      properties:
+        checkedAt: { type: string }
+        checks:
+          type: array
+          items: { $ref: "#/components/schemas/ConfigCheck" }
+    ConfigCheck:
+      type: object
+      required: [key, label, category, ok, required, detail]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        category: { type: string, enum: [core, email, ai, optional] }
+        ok: { type: boolean }
+        required: { type: boolean }
+        detail: { type: string }

@@ -1,0 +1,1 @@
+- [Drizzle peer alignment](drizzle-peer-alignment.md) — keep optional peer sets aligned across API and database packages to avoid incompatible SQL/column types.
