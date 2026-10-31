@@ -28,6 +28,11 @@ export const sends = pgTable("sends", {
   providerMessageId: text("provider_message_id"),
   repliedAt: timestamp("replied_at", { withTimezone: true }),
   replyClass: text("reply_class", { enum: ["positive", "neutral", "negative", "ooo", "unsubscribe"] }),
+  approvedBy: uuid("approved_by"),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  recipient: text("recipient"),
+  subject: text("subject"),
+  body: text("body"),
 }, t => [
   foreignKey({ columns: [t.draftId, t.agencyId], foreignColumns: [drafts.id, drafts.agencyId] }).onDelete("cascade"),
   foreignKey({ columns: [t.mailboxId, t.agencyId], foreignColumns: [mailboxes.id, mailboxes.agencyId] }).onDelete("cascade"),

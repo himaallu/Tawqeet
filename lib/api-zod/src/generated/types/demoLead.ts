@@ -10,6 +10,7 @@ import type { DemoEvidence } from './demoEvidence';
 import type { DemoLeadTemperature } from './demoLeadTemperature';
 
 export interface DemoLead {
+  legalBasis: string;
   id: string;
   fullName: string;
   title: string;

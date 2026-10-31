@@ -21,6 +21,12 @@ import SignalsPage from '@/pages/signals';
 import LeadsPage from '@/pages/leads';
 import RadarPage from '@/pages/radar';
 import DemoLeadPage from '@/pages/demo-lead';
+import ReviewPage from '@/pages/review';
+import AlertsPage from '@/pages/alerts';
+import BillingPage from '@/pages/billing';
+import CompliancePage from '@/pages/compliance';
+import ReportsPage from '@/pages/reports';
+import LandingPage from '@/pages/landing';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
 
@@ -28,6 +34,7 @@ function Gate() {
   const session = useGetSession({ query: { queryKey: getGetSessionQueryKey() } });
   const [location] = useLocation();
 
+  if (location === '/welcome') return <LandingPage />;
   if (location === '/auth/confirm') {
     if (session.data?.user) return <Redirect to="/clients" />;
     return <ConfirmPage />;
@@ -57,6 +64,11 @@ function Gate() {
           <Route path="/leads/:id"><DemoLeadPage /></Route>
           <Route path="/radar/leads/:id"><DemoLeadPage /></Route>
           <Route path="/settings/system"><SystemPage user={user} /></Route>
+          <Route path="/settings/alerts"><AlertsPage /></Route>
+          <Route path="/settings/billing"><BillingPage /></Route>
+          <Route path="/settings/compliance"><CompliancePage /></Route>
+          <Route path="/review"><ReviewPage /></Route>
+          <Route path="/reports"><ReportsPage /></Route>
           <Route component={NotFound} />
         </Switch>
       </RoutedErrorBoundary>

@@ -10,6 +10,15 @@
 
 # Changelog
 
+## 2026-10-31 — Finish demo: Review & Send, alerts, billing, compliance, landing
+
+- `/review`: ready emails across demo leads with a side panel (editable winner, switchable variants, simulated inbox). Approve & Send delivers via Resend **only** to `ALERT_EMAIL_TO`/`OWNER_EMAIL` with a `[Demo · to …]` subject prefix, List-Unsubscribe header and opt-out line; records approver and time in `sends`. Blocks free-mail, suppressed contacts, missing opt-out and over the 30/day cap.
+- Reply marking (positive/neutral/negative/unsubscribe) writes Brain learnings; unsubscribe adds to suppression.
+- Hot-lead alerts after scoring (Load demo data, radar, manual signal): email + `ALERT_WEBHOOK_URL` JSON; 7-day dedupe unless score rises 15+; `alerts_log` table. `/settings/alerts` with channel status, test alerts and log.
+- `/settings/billing` (USD 399/month, 5 clients, +USD 59/extra, usage, Stripe Payment Link), `/settings/compliance` (rules, address check, suppression list, `audit_log`), `/reports` (sends, positive per 100, top signals, calibration).
+- Public bilingual `/welcome` landing page (EN/AR, RTL) linked from login. Legal basis shown on leads.
+- Additive DB changes mirrored in `scripts/demo.sql` (run by `scripts/migrate-demo.ts`).
+
 ## 2026-10-31 — Phase 2: client Brain
 
 - Per-client editable onboarding/profile, website crawl and evidence extraction using the server-only AI SDK.

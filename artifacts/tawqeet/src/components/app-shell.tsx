@@ -2,14 +2,13 @@ import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLogout, useGetAgency, getGetAgencyQueryKey, type User } from "@workspace/api-client-react";
-import { Radar, Users, Send, Brain, Layers, Settings, Building2, Activity, LogOut, Menu, X, ShieldCheck } from "lucide-react";
+import { Radar, Users, Send, Brain, Layers, Settings, Building2, Activity, LogOut, Menu, X, ShieldCheck, BellRing, CreditCard, Scale, BarChart3 } from "lucide-react";
 import { Wordmark } from "@/components/brand";
 import { roleLabel, can } from "@/lib/roles";
 import { useToast } from "@/hooks/use-toast";
 import { apiErrorMessage } from "@/lib/api-error";
 
 const soon = [
-  { label: "Review & Send", icon: Send },
   { label: "Plays", icon: Layers },
 ];
 
@@ -35,7 +34,7 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
     <Link href={href} onClick={() => setOpen(false)} data-testid={testid}
       title={label === "Brain" && !clientId ? "Choose a client, then select Open Brain" : undefined}
       className={"group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
-        (selected && !(href === "/settings" && (location.startsWith("/settings/system") || location.startsWith("/settings/signals")))
+        (selected && !(href === "/settings" && location.startsWith("/settings/"))
           ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_2px_0_0_hsl(var(--sidebar-primary))]"
           : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground")}>
       <Icon className="h-4 w-4" />{label}
@@ -59,12 +58,17 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
           </div>
         ))}
         {item("/radar", "Radar", Radar, "nav-radar")}
+        {perms.viewSignals && item("/review", "Review & Send", Send, "nav-review")}
+        {perms.viewSignals && item("/reports", "Reports", BarChart3, "nav-reports")}
         {perms.viewSignals && item("/leads", "Leads", Users, "nav-leads")}
         {item("/clients", "Clients", Building2, "nav-clients", active("/clients") && !inBrain)}
         {item(clientId ? `/clients/${clientId}/brain` : "/clients", "Brain", Brain, "nav-brain", inBrain)}
         <div className="px-3 pt-5 pb-1.5 text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/45">Admin</div>
         {item("/settings", "Settings", Settings, "nav-settings")}
         {perms.viewSignals && item("/settings/signals", "Signals", Activity, "nav-signals")}
+        {perms.viewSignals && item("/settings/alerts", "Alerts", BellRing, "nav-alerts")}
+        {perms.viewSignals && item("/settings/billing", "Billing", CreditCard, "nav-billing")}
+        {perms.viewSignals && item("/settings/compliance", "Compliance", Scale, "nav-compliance")}
         {perms.systemChecks && item("/settings/system", "System checks", ShieldCheck, "nav-system")}
       </nav>
       <div className="border-t border-sidebar-border p-4">

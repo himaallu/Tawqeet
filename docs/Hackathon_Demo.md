@@ -1,6 +1,7 @@
 # Hackathon demo — 31 October 2026
 
-The existing agency and first client/Brain are reused. No emails are sent.
+The existing agency and first client/Brain are reused. Emails go only to the
+demo recipient (`ALERT_EMAIL_TO`, falling back to `OWNER_EMAIL`) — never to a lead.
 Enable `DEMO_MODE=true` explicitly. It is enabled only in the development
 environment; do not enable it on a private production agency. The public demo
 sign-in creates a four-hour member session. Turning demo mode off invalidates
@@ -36,6 +37,25 @@ then public careers links. Baselines without publication dates do not count as
 new roles for hiring surge. RSS failures retain existing evidence and show warnings.
 Jobs run in-process for this time-boxed single-instance demo; a restart interrupts
 in-flight work. Load demo data again resumes missing drafts.
+
+## Review & Send, alerts, billing, compliance
+
+Review & Send lists the winning draft per demo lead. Approve & Send sends through
+Resend to the demo recipient only, subject `[Demo · to {lead email or "sample contact"}]`,
+with a "Sent from client mailbox (demo)" note, the opt-out line and a
+List-Unsubscribe header. Sample contacts carry no email and are shown as
+"demo recipient only". Sends are blocked for free-mail domains, suppressed
+emails/domains, a missing opt-out line, or more than 30 sends per day.
+Mark reply writes a Brain learning; unsubscribe suppresses the contact's domain.
+
+When a lead turns Hot (70+), Tawqeet emails the demo recipient and POSTs
+`{company, lead, title, score, temperature, why_now, signals, evidence_url, dashboard_url, channel}`
+to `ALERT_WEBHOOK_URL` (Make → Trello card + SMS). Same lead is not re-alerted
+within 7 days unless its score rises 15+. Every attempt is in Settings → Alerts.
+
+Demo path: demo login → Settings → Load demo data → Radar → Autobia (Hot) →
+Rewrite → Review & Send → Approve & Send → Settings → Alerts → Send test alert →
+Billing → Upgrade → Compliance → check `someone@gmail.com` (blocked) → `/welcome` EN/AR.
 
 Run the additive migration with `pnpm --filter @workspace/api-server exec tsx ../../scripts/migrate-demo.ts`.
 No test suite was run, per the speed-mode brief.
