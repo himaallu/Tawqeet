@@ -37,3 +37,25 @@ export async function checkResend(): Promise<{ ok: boolean; detail: string }> {
     return { ok: false, detail: "Resend is unavailable. Check the connection in Integrations." };
   }
 }
+
+export type OutgoingEmail = { to: string; subject: string; text: string; html?: string; headers?: Record<string, string> };
+/** Sends via RESEND_API_KEY when set, otherwise via the Replit Resend connector. Throws a short, safe error. */
+export async function sendEmail(mail: OutgoingEmail): Promise<{ id: string | null }> {
+  const from = process.env.RESEND_FROM_EMAIL;
+  if (!from) throw new Error("RESEND_FROM_EMAIL is not configured.");
+  const body = JSON.stringify({ from: `Tawqeet <${from}>`, to: [mail.to], subject: mail.subject, text: mail.text,
+    ...(mail.html ? { html: mail.html } : {}), ...(mail.headers ? { headers: mail.headers } : {}) });
+  let response: Response;
+  try {
+    response = process.env.RESEND_API_KEY
+      ? await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(15000), body,
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.RESEND_API_KEY}` } })
+      : await connectors.proxy("resend", "/emails", { method: "POST", headers: { "Content-Type": "application/json" }, body });
+  } catch { throw new Error("Resend is unreachable."); }
+  const result = await response.json().catch(() => ({})) as { id?: string; message?: string };
+  if (!response.ok) throw new Error(`Resend HTTP ${response.status}${result.message ? `: ${String(result.message).slice(0, 160)}` : ""}`);
+  return { id: result.id ?? null };
+}
+
+/** The only address demo email goes to. */
+export const demoRecipient = () => process.env.ALERT_EMAIL_TO || process.env.OWNER_EMAIL || null;

@@ -4,6 +4,7 @@ import sources from "./sources.json" with { type: "json" };
 import { addEvidence } from "./hiring";
 import { leadEvidence } from "../signals/scoring";
 import { writeDrafts, simulate, refreshGeminiSummaries } from "./writer";
+import { notifyHotLeads } from "../alerts";
 
 const fixtures = [
   { name: "Autobia", country: "SA", vertical: "saas", domain: "autobia.sa", fit: 35, source: 0, keys: ["funding_round"], jobs: [1,2] },
@@ -101,6 +102,8 @@ export async function seedDemo(agencyId:string, stage:(s:string)=>void, warn:(s:
     }
   }
   await leadEvidence(agencyId,db,true);
+  stage("Sending Hot lead alerts");
+  await notifyHotLeads(agencyId,warn);
   // Two concurrent leads, with cached drafts left intact on repeat Load clicks.
   for(let index=0;index<seeded.length;index+=2) await Promise.all(seeded.slice(index,index+2).map(async id=>{
     const [lead]=await db.select().from(leads).where(eq(leads.id,id));

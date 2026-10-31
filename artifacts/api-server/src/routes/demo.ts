@@ -7,6 +7,7 @@ import { appOrigin } from "../lib/config";
 import { leadEvidence } from "../lib/signals/scoring";
 import { hiringRadar, manualSignal } from "../lib/demo/hiring";
 import { seedDemo } from "../lib/demo/seed";
+import { notifyHotLeads } from "../lib/alerts";
 import { writeDrafts, simulate, rewrite, refreshGeminiSummaries } from "../lib/demo/writer";
 
 const router = Router();
@@ -54,7 +55,7 @@ async function radar(agencyId:string) {
     const c=orgs.find(c=>c.id===p.companyId)!;const e=evidence.find(e=>e.id===p.id)!;
     return {id:p.id,fullName:p.fullName,title:p.title||"",companyName:c.name,country:c.country||"",clientId:p.clientId,
       temperature:e.totalScore>=70?"hot":e.totalScore>=35?"warm":"cold",totalScore:e.totalScore,signalPoints:e.signalPoints,
-      stackingBonus:e.stackingBonus,sample:p.sample,language:p.language,signals:e.signals,
+      stackingBonus:e.stackingBonus,sample:p.sample,language:p.language,legalBasis:p.legalBasis,signals:e.signals,
       drafts:emails.filter(d=>d.leadId===p.id).map(d=>({id:d.id,variant:d.variant,subject:d.subject,body:d.body,language:d.language,
         score:d.score,simulation:(d.sim as any)?.simulation||null,model:(d.sim as any)?.model||"Not recorded"}))};
   }),companies:orgs.filter(c=>c.radarMeta.tracked).map(c=>({id:c.id,name:c.name,country:c.country||"",
@@ -82,13 +83,13 @@ router.post("/demo/load",(req,res)=>{
   res.status(started?202:409).json(started?{message:"Demo loading started"}:{error:"Another demo job is running."});
 });
 router.post("/demo/radar/run",(req,res)=>{
-  const started=start(()=>hiringRadar(req.user!.agencyId,stage,warn));
+  const started=start(async()=>{await hiringRadar(req.user!.agencyId,stage,warn);await notifyHotLeads(req.user!.agencyId,warn);});
   res.status(started?202:409).json(started?{message:"Radar started"}:{error:"Another demo job is running."});
 });
 router.post("/demo/signals",(req,res)=>{
   const parsed=z.object({companyId:z.string().uuid(),url:z.string().url()}).safeParse(req.body);
   if(!parsed.success){res.status(400).json({error:"Choose a company and provide a public URL."});return;}
-  const started=start(async()=>{stage("AI is reading the source");await manualSignal(req.user!.agencyId,parsed.data.companyId,parsed.data.url);});
+  const started=start(async()=>{stage("AI is reading the source");await manualSignal(req.user!.agencyId,parsed.data.companyId,parsed.data.url);await notifyHotLeads(req.user!.agencyId,warn);});
   res.status(started?202:409).json(started?{message:"Reading source"}:{error:"Another demo job is running."});
 });
 router.post("/demo/leads/:id/drafts",async(req,res)=>{
