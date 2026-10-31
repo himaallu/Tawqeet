@@ -926,6 +926,38 @@ export interface LiveChecks {
   checks: ServiceCheck[];
 }
 
+export type MailboxProviderProvider = typeof MailboxProviderProvider[keyof typeof MailboxProviderProvider];
+
+
+export const MailboxProviderProvider = {
+  gmail: 'gmail',
+  outlook: 'outlook',
+} as const;
+
+export type MailboxProviderConnectionsItem = {
+  clientId: string;
+  clientName: string;
+  email: string;
+  status: string;
+};
+
+export interface MailboxProvider {
+  provider: MailboxProviderProvider;
+  name: string;
+  configured: boolean;
+  scope: string;
+  /** @nullable */
+  redirectUri: string | null;
+  connections: MailboxProviderConnectionsItem[];
+}
+
+export interface MailboxStatus {
+  realSend: boolean;
+  encryptionReady: boolean;
+  providers: MailboxProvider[];
+  clients: ReportClient[];
+}
+
 export type RequestBrainUpload200 = {
   uploadUrl: string;
   objectPath: string;

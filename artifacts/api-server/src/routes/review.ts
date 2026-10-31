@@ -5,6 +5,7 @@ import { ApproveAndSendDraftBody, MarkSendReplyBody } from "@workspace/api-zod";
 import { requireUser, requireAgencyStaff } from "../lib/security";
 import { leadEvidence } from "../lib/signals/scoring";
 import { sendEmail, demoRecipient } from "../lib/resend";
+import { realSend, sendViaMailbox } from "../lib/mailbox";
 import { blockReasons, sentToday, audit, DAILY_CAP, domainOf, checkAutoPause } from "../lib/compliance";
 
 const router = Router();
@@ -70,8 +71,9 @@ router.post("/review/drafts/:id/send", async (req, res) => {
   const siblings = await db.select({ id: drafts.id }).from(drafts).where(and(eq(drafts.agencyId, agencyId), eq(drafts.leadId, row.lead.id)));
   const [already] = await db.select().from(sends).where(and(eq(sends.agencyId, agencyId), inArray(sends.draftId, siblings.map(s => s.id)))).limit(1);
   if (already) { res.status(409).json({ error: "An email was already sent to this lead." }); return; }
-  const recipient = demoRecipient();
-  if (!recipient) { res.status(503).json({ error: "No demo recipient configured. Set ALERT_EMAIL_TO or OWNER_EMAIL." }); return; }
+  const live = realSend();
+  const recipient = live ? row.lead.email : demoRecipient();
+  if (!recipient) { res.status(live ? 422 : 503).json({ error: live ? "REAL_SEND is on but this contact has no email address." : "No demo recipient configured. Set ALERT_EMAIL_TO or OWNER_EMAIL." }); return; }
   if (row.client.sendingPausedAt) { res.status(423).json({ error: `Sending is paused for ${row.client.name}: ${row.client.sendingPausedReason}. Resume it on Review & Send.` }); return; }
   let { subject, body } = input.data;
   let chosen = row.draft;
@@ -88,7 +90,9 @@ router.post("/review/drafts/:id/send", async (req, res) => {
   }
   const reasons = await blockReasons(agencyId, { email: row.lead.email, domain: row.company.domain, body });
   if (reasons.length) { res.status(422).json({ error: `Blocked: ${reasons.join("; ")}.` }); return; }
-  const mailbox = await demoMailbox(agencyId, row.lead.clientId);
+  const [connected] = live ? await db.select().from(mailboxes).where(and(eq(mailboxes.agencyId, agencyId), eq(mailboxes.clientId, row.lead.clientId), eq(mailboxes.status, "connected"))) : [];
+  if (live && !connected) { res.status(422).json({ error: "REAL_SEND is on: connect this client's Gmail or Outlook mailbox in Settings → Mailboxes first." }); return; }
+  const mailbox = connected ?? await demoMailbox(agencyId, row.lead.clientId);
   if (await sentToday(agencyId) >= Math.min(mailbox.dailyCap, DAILY_CAP)) { res.status(429).json({ error: `Daily cap of ${DAILY_CAP} sends reached.` }); return; }
   await audit(agencyId, req.user!.id, "draft.approve", `${row.company.name} — ${row.lead.fullName}`, { draftId: chosen.id, abArm });
   const intended = row.lead.email || "sample contact";
@@ -96,8 +100,10 @@ router.post("/review/drafts/:id/send", async (req, res) => {
   const text = `Sent from client mailbox (demo) — ${row.client.name}. Intended recipient: ${intended}. Demo emails go only to the demo recipient.\n\n${body}`;
   let providerId: string | null;
   try {
-    providerId = (await sendEmail({ to: recipient, subject: `[Demo · to ${intended}] ${subject}`, text,
-      headers: { "List-Unsubscribe": `<mailto:${from}?subject=unsubscribe>` } })).id;
+    providerId = live
+      ? await sendViaMailbox(mailbox, { to: recipient, subject, text: body, unsubscribe: `<mailto:${from}?subject=unsubscribe>` })
+      : (await sendEmail({ to: recipient, subject: `[Demo · to ${intended}] ${subject}`, text,
+          headers: { "List-Unsubscribe": `<mailto:${from}?subject=unsubscribe>` } })).id;
   } catch (e) {
     await audit(agencyId, req.user!.id, "send.failed", `${row.company.name} — ${row.lead.fullName}`, { error: e instanceof Error ? e.message : "failed" });
     res.status(502).json({ error: `Email was not sent: ${e instanceof Error ? e.message : "delivery failed"}` }); return;
@@ -108,7 +114,7 @@ router.post("/review/drafts/:id/send", async (req, res) => {
   await db.update(drafts).set({ subject, body, status: "sent" }).where(eq(drafts.id, chosen.id));
   await db.update(leads).set({ status: "sent" }).where(eq(leads.id, row.lead.id));
   await audit(agencyId, req.user!.id, "send", `${row.company.name} — ${row.lead.fullName} → ${recipient}`, { sendId: send!.id });
-  res.json({ message: `Sent to the demo recipient ${recipient}.${abArm === "challenger" ? ` A/B test: variant ${chosen.variant} (second-best) was sent instead.` : ""}`, sendId: send!.id, recipient });
+  res.json({ message: `${live ? `Sent to ${recipient} via the client's ${mailbox.provider} mailbox` : `Sent to the demo recipient ${recipient}`}.${abArm === "challenger" ? ` A/B test: variant ${chosen.variant} (second-best) was sent instead.` : ""}`, sendId: send!.id, recipient });
 });
 
 router.post("/review/sends/:id/reply", async (req, res) => {

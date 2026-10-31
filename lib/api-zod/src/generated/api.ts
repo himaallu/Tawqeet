@@ -1584,3 +1584,40 @@ export const GetLiveServiceChecksResponse = zod.object({
 })
 
 
+export const GetMailboxStatusResponse = zod.object({
+  "realSend": zod.boolean(),
+  "encryptionReady": zod.boolean(),
+  "providers": zod.array(zod.object({
+  "provider": zod.enum(['gmail', 'outlook']),
+  "name": zod.string(),
+  "configured": zod.boolean(),
+  "scope": zod.string(),
+  "redirectUri": zod.string().nullable(),
+  "connections": zod.array(zod.object({
+  "clientId": zod.string(),
+  "clientName": zod.string(),
+  "email": zod.string(),
+  "status": zod.string()
+}))
+})),
+  "clients": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string()
+}))
+})
+
+
+export const StartMailboxOAuthParams = zod.object({
+  "provider": zod.enum(['gmail', 'outlook'])
+})
+
+export const StartMailboxOAuthResponse = zod.void()
+
+
+export const MailboxOAuthCallbackParams = zod.object({
+  "provider": zod.enum(['gmail', 'outlook'])
+})
+
+export const MailboxOAuthCallbackResponse = zod.void()
+
+

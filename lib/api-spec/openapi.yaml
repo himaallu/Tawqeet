@@ -731,6 +731,31 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/LiveChecks" }
+  /mailboxes:
+    get:
+      operationId: getMailboxStatus
+      responses:
+        "200":
+          description: Mailbox providers, redirect URIs and connections
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MailboxStatus" }
+  /mailboxes/oauth/{provider}/start:
+    get:
+      operationId: startMailboxOAuth
+      parameters:
+        - { name: provider, in: path, required: true, schema: { type: string, enum: [gmail, outlook] } }
+      responses:
+        "302":
+          description: Redirect to the provider consent screen (browser navigation; requires ?clientId=<client id>)
+  /mailboxes/oauth/{provider}/callback:
+    get:
+      operationId: mailboxOAuthCallback
+      parameters:
+        - { name: provider, in: path, required: true, schema: { type: string, enum: [gmail, outlook] } }
+      responses:
+        "302":
+          description: Redirect back to Settings → Mailboxes
 components:
   schemas:
     DemoStatus:
@@ -1437,3 +1462,34 @@ components:
         checks:
           type: array
           items: { $ref: "#/components/schemas/ServiceCheck" }
+    MailboxProvider:
+      type: object
+      required: [provider, name, configured, scope, redirectUri, connections]
+      properties:
+        provider: { type: string, enum: [gmail, outlook] }
+        name: { type: string }
+        configured: { type: boolean }
+        scope: { type: string }
+        redirectUri: { type: string, nullable: true }
+        connections:
+          type: array
+          items:
+            type: object
+            required: [clientId, clientName, email, status]
+            properties:
+              clientId: { type: string }
+              clientName: { type: string }
+              email: { type: string }
+              status: { type: string }
+    MailboxStatus:
+      type: object
+      required: [realSend, encryptionReady, providers, clients]
+      properties:
+        realSend: { type: boolean }
+        encryptionReady: { type: boolean }
+        providers:
+          type: array
+          items: { $ref: "#/components/schemas/MailboxProvider" }
+        clients:
+          type: array
+          items: { $ref: "#/components/schemas/ReportClient" }

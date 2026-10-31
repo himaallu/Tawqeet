@@ -57,6 +57,7 @@ import type {
   ListSignalDefinitions200,
   LiveChecks,
   MagicLinkInput,
+  MailboxStatus,
   Message,
   Play,
   PlayInput,
@@ -5088,6 +5089,291 @@ export function useGetLiveServiceChecks<TData = Awaited<ReturnType<typeof getLiv
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetLiveServiceChecksQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMailboxStatusUrl = () => {
+
+
+
+
+  return `/api/mailboxes`
+}
+
+export const getMailboxStatus = async ( options?: Parameters<typeof customFetch>[1]): Promise<MailboxStatus> => {
+
+  return customFetch<MailboxStatus>(getGetMailboxStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMailboxStatusQueryKey = () => {
+    return [
+    `/api/mailboxes`
+    ] as const;
+    }
+
+
+export const getGetMailboxStatusQueryOptions = <TData = Awaited<ReturnType<typeof getMailboxStatus>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMailboxStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMailboxStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMailboxStatus>>> = ({ signal }) => getMailboxStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMailboxStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMailboxStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getMailboxStatus>>>
+export type GetMailboxStatusQueryError = ErrorType<unknown>
+
+
+export function useGetMailboxStatus<TData = Awaited<ReturnType<typeof getMailboxStatus>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMailboxStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMailboxStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getMailboxStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMailboxStatus<TData = Awaited<ReturnType<typeof getMailboxStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMailboxStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMailboxStatus>>,
+          TError,
+          Awaited<ReturnType<typeof getMailboxStatus>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMailboxStatus<TData = Awaited<ReturnType<typeof getMailboxStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMailboxStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetMailboxStatus<TData = Awaited<ReturnType<typeof getMailboxStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMailboxStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMailboxStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getStartMailboxOAuthUrl = (provider: 'gmail' | 'outlook',) => {
+
+
+
+
+  return `/api/mailboxes/oauth/${provider}/start`
+}
+
+export const startMailboxOAuth = async (provider: 'gmail' | 'outlook', options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getStartMailboxOAuthUrl(provider),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getStartMailboxOAuthQueryKey = (provider: 'gmail' | 'outlook',) => {
+    return [
+    `/api/mailboxes/oauth/${provider}/start`
+    ] as const;
+    }
+
+
+export const getStartMailboxOAuthQueryOptions = <TData = Awaited<ReturnType<typeof startMailboxOAuth>>, TError = ErrorType<void>>(provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof startMailboxOAuth>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getStartMailboxOAuthQueryKey(provider);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof startMailboxOAuth>>> = ({ signal }) => startMailboxOAuth(provider, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: provider !== null && provider !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof startMailboxOAuth>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type StartMailboxOAuthQueryResult = NonNullable<Awaited<ReturnType<typeof startMailboxOAuth>>>
+export type StartMailboxOAuthQueryError = ErrorType<void>
+
+
+export function useStartMailboxOAuth<TData = Awaited<ReturnType<typeof startMailboxOAuth>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof startMailboxOAuth>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof startMailboxOAuth>>,
+          TError,
+          Awaited<ReturnType<typeof startMailboxOAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStartMailboxOAuth<TData = Awaited<ReturnType<typeof startMailboxOAuth>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof startMailboxOAuth>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof startMailboxOAuth>>,
+          TError,
+          Awaited<ReturnType<typeof startMailboxOAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useStartMailboxOAuth<TData = Awaited<ReturnType<typeof startMailboxOAuth>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof startMailboxOAuth>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useStartMailboxOAuth<TData = Awaited<ReturnType<typeof startMailboxOAuth>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof startMailboxOAuth>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getStartMailboxOAuthQueryOptions(provider,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getMailboxOAuthCallbackUrl = (provider: 'gmail' | 'outlook',) => {
+
+
+
+
+  return `/api/mailboxes/oauth/${provider}/callback`
+}
+
+export const mailboxOAuthCallback = async (provider: 'gmail' | 'outlook', options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getMailboxOAuthCallbackUrl(provider),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getMailboxOAuthCallbackQueryKey = (provider: 'gmail' | 'outlook',) => {
+    return [
+    `/api/mailboxes/oauth/${provider}/callback`
+    ] as const;
+    }
+
+
+export const getMailboxOAuthCallbackQueryOptions = <TData = Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError = ErrorType<void>>(provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getMailboxOAuthCallbackQueryKey(provider);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof mailboxOAuthCallback>>> = ({ signal }) => mailboxOAuthCallback(provider, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: provider !== null && provider !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type MailboxOAuthCallbackQueryResult = NonNullable<Awaited<ReturnType<typeof mailboxOAuthCallback>>>
+export type MailboxOAuthCallbackQueryError = ErrorType<void>
+
+
+export function useMailboxOAuthCallback<TData = Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof mailboxOAuthCallback>>,
+          TError,
+          Awaited<ReturnType<typeof mailboxOAuthCallback>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useMailboxOAuthCallback<TData = Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof mailboxOAuthCallback>>,
+          TError,
+          Awaited<ReturnType<typeof mailboxOAuthCallback>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useMailboxOAuthCallback<TData = Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useMailboxOAuthCallback<TData = Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError = ErrorType<void>>(
+ provider: 'gmail' | 'outlook', options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof mailboxOAuthCallback>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getMailboxOAuthCallbackQueryOptions(provider,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

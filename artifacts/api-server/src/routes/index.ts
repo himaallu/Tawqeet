@@ -9,6 +9,7 @@ import brainRouter from "./brain";
 import signalSettingsRouter from "./signal-settings";
 import reviewRouter from "./review";
 import operationsRouter from "./operations";
+import mailboxesRouter from "./mailboxes";
 
 const router: IRouter = Router();
 
@@ -21,6 +22,7 @@ router.use(systemRouter);
 router.use(signalSettingsRouter);
 router.use(reviewRouter);
 router.use(operationsRouter);
+router.use(mailboxesRouter);
 router.use(demoRouter);
 
 export default router;
