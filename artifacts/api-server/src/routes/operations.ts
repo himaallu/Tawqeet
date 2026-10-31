@@ -9,6 +9,7 @@ import { leadEvidence } from "../lib/signals/scoring";
 import { sendDigest } from "../lib/digests";
 import { PLAN, simulationsThisMonth } from "../lib/plan";
 import { testAlert } from "../lib/alerts";
+import { direct } from "../lib/integrations";
 import { demoRecipient } from "../lib/resend";
 import { blockReasons, audit, FREE_MAIL_DOMAINS, DAILY_CAP, domainOf } from "../lib/compliance";
 
@@ -130,12 +131,15 @@ router.get("/settings/alerts", async (req, res) => {
   const agencyId = req.user!.agencyId;
   const webhook = Boolean(process.env.ALERT_WEBHOOK_URL), email = Boolean(demoRecipient() && process.env.RESEND_FROM_EMAIL);
   const via = (name: string) => webhook ? `Connected via Make webhook (${name})` : "Set ALERT_WEBHOOK_URL to route through Make";
+  const ch = (key: "sms" | "trello" | "asana" | "clickup", name: string, vars: string, makeName: string) => direct[key]()
+    ? { key, name, live: true, status: "Live (direct API)", detail: `Direct ${name} API (${vars})` }
+    : { key, name, live: webhook, status: webhook ? "via Make webhook" : "Not configured", detail: `${via(makeName)}. Direct: set ${vars}.` };
   const channels = [
     { key: "email", name: "Email", live: email, status: email ? "Live" : "Not configured", detail: email ? `Resend → ${demoRecipient()}` : "Set ALERT_EMAIL_TO (or OWNER_EMAIL) and RESEND_FROM_EMAIL" },
-    { key: "sms", name: "SMS", live: webhook, status: "via Make webhook", detail: via("Make → SMS") },
-    { key: "trello", name: "Trello", live: webhook, status: "via Make webhook", detail: via("Make → Trello card") },
-    { key: "asana", name: "Asana", live: webhook, status: "via webhook", detail: via("Asana task") },
-    { key: "clickup", name: "ClickUp", live: webhook, status: "via webhook", detail: via("ClickUp task") },
+    ch("sms", "SMS", "TWILIO_SID, TWILIO_TOKEN, TWILIO_FROM, ALERT_SMS_TO", "Make → SMS"),
+    ch("trello", "Trello", "TRELLO_KEY, TRELLO_TOKEN, TRELLO_LIST_ID", "Make → Trello card"),
+    ch("asana", "Asana", "ASANA_TOKEN, ASANA_PROJECT_ID", "Asana task"),
+    ch("clickup", "ClickUp", "CLICKUP_TOKEN, CLICKUP_LIST_ID", "ClickUp task"),
     { key: "webhook", name: "Webhook", live: webhook, status: webhook ? "Live" : "Not configured", detail: webhook ? "POST JSON to ALERT_WEBHOOK_URL" : "Set ALERT_WEBHOOK_URL" },
   ];
   const log = await db.select({ a: alertsLog, leadName: leads.fullName, companyName: companies.name }).from(alertsLog)

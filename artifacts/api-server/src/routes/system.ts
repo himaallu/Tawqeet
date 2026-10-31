@@ -7,6 +7,7 @@ import { appOrigin } from "../lib/config";
 import { checkResend } from "../lib/resend";
 import { aiConfiguration } from "../lib/brain/extract";
 import { hubspotConfigured } from "../lib/brain/crm";
+import { runServiceChecks, missingRequired } from "../lib/service-checks";
 const router: IRouter = Router();
 
 router.get("/settings/system", requireUser, requireOwner, async (_req, res): Promise<void> => {
@@ -61,5 +62,9 @@ router.get("/settings/system", requireUser, requireOwner, async (_req, res): Pro
   add("PG_BOSS_WORKER", "Background worker", "core", true, workerOk, workerOk ? "Worker heartbeat received in the last 90 seconds. Future outbound jobs remain disabled." : "No recent heartbeat. Start the separate worker process.");
   res.set("Cache-Control", "no-store");
   res.json(GetSystemCheckResponse.parse({ checkedAt: new Date().toISOString(), checks }));
+});
+router.get("/settings/system/live", requireUser, requireOwner, async (_req, res): Promise<void> => {
+  res.set("Cache-Control", "no-store");
+  res.json({ checkedAt: new Date().toISOString(), missingRequired: missingRequired(), checks: await runServiceChecks({ active: false }) });
 });
 export default router;

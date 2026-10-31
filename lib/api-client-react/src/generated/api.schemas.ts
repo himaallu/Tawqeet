@@ -904,6 +904,28 @@ export interface PlayLibrary {
   signals: PlayLibrarySignalsItem[];
 }
 
+export type ServiceCheckStatus = typeof ServiceCheckStatus[keyof typeof ServiceCheckStatus];
+
+
+export const ServiceCheckStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  skip: 'skip',
+} as const;
+
+export interface ServiceCheck {
+  key: string;
+  label: string;
+  status: ServiceCheckStatus;
+  detail: string;
+}
+
+export interface LiveChecks {
+  checkedAt: string;
+  missingRequired: string[];
+  checks: ServiceCheck[];
+}
+
 export type RequestBrainUpload200 = {
   uploadUrl: string;
   objectPath: string;

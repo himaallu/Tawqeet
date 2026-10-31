@@ -722,6 +722,15 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Play" }
+  /settings/system/live:
+    get:
+      operationId: getLiveServiceChecks
+      responses:
+        "200":
+          description: Live minimal calls to each configured service (no values returned)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LiveChecks" }
 components:
   schemas:
     DemoStatus:
@@ -1411,3 +1420,20 @@ components:
               key: { type: string }
               name: { type: string }
               playHint: { type: string }
+    ServiceCheck:
+      type: object
+      required: [key, label, status, detail]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        status: { type: string, enum: [pass, fail, skip] }
+        detail: { type: string }
+    LiveChecks:
+      type: object
+      required: [checkedAt, missingRequired, checks]
+      properties:
+        checkedAt: { type: string }
+        missingRequired: { type: array, items: { type: string } }
+        checks:
+          type: array
+          items: { $ref: "#/components/schemas/ServiceCheck" }

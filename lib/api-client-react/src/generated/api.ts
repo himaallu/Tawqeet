@@ -55,6 +55,7 @@ import type {
   LandingInfo,
   LinkVerificationInput,
   ListSignalDefinitions200,
+  LiveChecks,
   MagicLinkInput,
   Message,
   Play,
@@ -5003,4 +5004,99 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getUpdatePlayMutationOptions(options), queryClient);
     }
+
+export const getGetLiveServiceChecksUrl = () => {
+
+
+
+
+  return `/api/settings/system/live`
+}
+
+export const getLiveServiceChecks = async ( options?: Parameters<typeof customFetch>[1]): Promise<LiveChecks> => {
+
+  return customFetch<LiveChecks>(getGetLiveServiceChecksUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLiveServiceChecksQueryKey = () => {
+    return [
+    `/api/settings/system/live`
+    ] as const;
+    }
+
+
+export const getGetLiveServiceChecksQueryOptions = <TData = Awaited<ReturnType<typeof getLiveServiceChecks>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLiveServiceChecks>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLiveServiceChecksQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLiveServiceChecks>>> = ({ signal }) => getLiveServiceChecks({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLiveServiceChecks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetLiveServiceChecksQueryResult = NonNullable<Awaited<ReturnType<typeof getLiveServiceChecks>>>
+export type GetLiveServiceChecksQueryError = ErrorType<unknown>
+
+
+export function useGetLiveServiceChecks<TData = Awaited<ReturnType<typeof getLiveServiceChecks>>, TError = ErrorType<unknown>>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLiveServiceChecks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLiveServiceChecks>>,
+          TError,
+          Awaited<ReturnType<typeof getLiveServiceChecks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLiveServiceChecks<TData = Awaited<ReturnType<typeof getLiveServiceChecks>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLiveServiceChecks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLiveServiceChecks>>,
+          TError,
+          Awaited<ReturnType<typeof getLiveServiceChecks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLiveServiceChecks<TData = Awaited<ReturnType<typeof getLiveServiceChecks>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLiveServiceChecks>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetLiveServiceChecks<TData = Awaited<ReturnType<typeof getLiveServiceChecks>>, TError = ErrorType<unknown>>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLiveServiceChecks>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetLiveServiceChecksQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 

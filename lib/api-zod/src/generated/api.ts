@@ -1572,3 +1572,15 @@ export const UpdatePlayResponse = zod.object({
 })
 
 
+export const GetLiveServiceChecksResponse = zod.object({
+  "checkedAt": zod.string(),
+  "missingRequired": zod.array(zod.string()),
+  "checks": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'skip']),
+  "detail": zod.string()
+}))
+})
+
+
