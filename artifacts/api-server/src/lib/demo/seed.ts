@@ -53,7 +53,7 @@ export async function seedDemo(agencyId:string, stage:(s:string)=>void, warn:(s:
   });
   const seeded: string[] = [];
   const refresh = new Set<string>();
-  warn("Demo fit points are illustrative inputs, not verified ICP enrichment. No messages will be sent.");
+  warn("Demo fit points are illustrative inputs, not verified ICP enrichment. Approved emails go only to the demo recipient.");
   warn("Two supplied Marketing Monk links return404. Verified MEVP and Naukrigulf alternatives are used instead.");
   for (let i=0;i<fixtures.length;i++) {
     const f=fixtures[i]!;

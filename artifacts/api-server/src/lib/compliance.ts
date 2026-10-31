@@ -5,7 +5,7 @@ export const FREE_MAIL_DOMAINS = ["gmail.com", "googlemail.com", "yahoo.com", "h
   "icloud.com", "me.com", "aol.com", "proton.me", "protonmail.com"];
 export const DAILY_CAP = 30;
 export const DEFAULT_LEGAL_BASIS = "B2B legitimate interest";
-export const OPT_OUT_PATTERN = /reply no|won.t follow|unsubscribe|opt.?out|reply .?stop|لن أتابع|توقف|إلغاء الاشتراك/i;
+export const OPT_OUT_PATTERN = /reply no|won.t follow|unsubscribe|reply .?stop|لن أتابع|توقف|إلغاء الاشتراك/i;
 
 export const domainOf = (value: string) => (value.includes("@") ? value.split("@")[1]! : value).toLowerCase().trim().replace(/^www\./, "");
 export const isFreeMail = (email: string) => {

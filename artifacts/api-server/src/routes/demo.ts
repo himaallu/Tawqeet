@@ -40,7 +40,7 @@ router.post("/demo/login",async(_req,res)=>{
   const token=randomToken(),expiresAt=new Date(Date.now()+4*60*60*1000);
   await db.insert(sessions).values({tokenHash:hashToken(token),userId:user!.id,agencyId:agency.id,expiresAt});
   res.cookie(COOKIE_NAME,token,{httpOnly:true,secure:appOrigin().startsWith("https:"),sameSite:"lax",path:"/",expires:expiresAt});
-  res.json({message:"Demo session created. Nothing will be sent."});
+  res.json({message:"Demo session created. Emails go only to the demo recipient."});
 });
 router.use("/demo",requireUser,requireAgencyStaff);
 

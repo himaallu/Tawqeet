@@ -71,8 +71,10 @@ export async function notifyHotLeads(agencyId: string, warn?: (s: string) => voi
     for (const e of hot) {
       const row = rows.find(r => r.lead.id === e.id);
       if (!row) continue;
-      const last = history.find(h => h.leadId === e.id && !h.test);
+      // Dedupe on delivered alerts; retry failed/unconfigured channels at most every 10 minutes.
+      const last = history.find(h => h.leadId === e.id && !h.test && h.status === "sent");
       if (last && e.totalScore < (last.score ?? 0) + 15) continue;
+      if (!last && history.some(h => h.leadId === e.id && !h.test && h.createdAt.getTime() > Date.now() - 10 * 60_000)) continue;
       const signals = [...e.signals].sort((a, b) => b.points - a.points);
       const payload: AlertPayload = { company: row.company.name, lead: row.lead.fullName, title: row.lead.title || "",
         score: e.totalScore, temperature: "hot", why_now: signals.slice(0, 2).map(s => `${s.name}: ${s.title}`).join("; ") || row.lead.whyNow || "",

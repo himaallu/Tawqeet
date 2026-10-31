@@ -19,7 +19,7 @@ import { SimulatedInbox, SampleBadge, tempStyle } from "@/components/demo-bits";
 import { apiErrorMessage } from "@/lib/api-error";
 import { useToast } from "@/hooks/use-toast";
 
-const OPT_OUT = /reply no|won.t follow|unsubscribe|opt.?out|reply .?stop|لن أتابع|توقف|إلغاء الاشتراك/i;
+const OPT_OUT = /reply no|won.t follow|unsubscribe|reply .?stop|لن أتابع|توقف|إلغاء الاشتراك/i;
 const replies: { key: ReplyInputReplyClass; label: string }[] = [
   { key: "positive", label: "Positive" }, { key: "neutral", label: "Neutral" },
   { key: "negative", label: "Negative" }, { key: "unsubscribe", label: "Unsubscribe" },
