@@ -12,7 +12,6 @@ const soon = [
   { label: "Radar", icon: Radar },
   { label: "Leads", icon: Users },
   { label: "Review & Send", icon: Send },
-  { label: "Brain", icon: Brain },
   { label: "Plays", icon: Layers },
 ];
 
@@ -24,6 +23,8 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
   const logout = useLogout();
   const { data: agency } = useGetAgency({ query: { enabled: !!user, queryKey: getGetAgencyQueryKey() } });
   const perms = can(user);
+  const clientId = location.match(/^\/clients\/([^/?]+)/)?.[1];
+  const inBrain = /^\/clients\/[^/]+\/brain/.test(location);
 
   const doLogout = () =>
     logout.mutate(undefined, {
@@ -32,10 +33,11 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
     });
 
   const active = (p: string) => location === p || location.startsWith(p + "/");
-  const item = (href: string, label: string, Icon: typeof Radar, testid: string) => (
+  const item = (href: string, label: string, Icon: typeof Radar, testid: string, selected = active(href)) => (
     <Link href={href} onClick={() => setOpen(false)} data-testid={testid}
+      title={label === "Brain" && !clientId ? "Choose a client, then select Open Brain" : undefined}
       className={"group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors " +
-        (active(href) && !(href === "/settings" && location.startsWith("/settings/system"))
+        (selected && !(href === "/settings" && location.startsWith("/settings/system"))
           ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_2px_0_0_hsl(var(--sidebar-primary))]"
           : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground")}>
       <Icon className="h-4 w-4" />{label}
@@ -58,7 +60,8 @@ export function AppShell({ user, children }: { user: User; children: ReactNode }
             <span className="ml-auto rounded-sm border border-sidebar-foreground/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider">Soon</span>
           </div>
         ))}
-        {item("/clients", "Clients", Building2, "nav-clients")}
+        {item("/clients", "Clients", Building2, "nav-clients", active("/clients") && !inBrain)}
+        {item(clientId ? `/clients/${clientId}/brain` : "/clients", "Brain", Brain, "nav-brain", inBrain)}
         <div className="px-3 pt-5 pb-1.5 text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/45">Admin</div>
         {item("/settings", "Settings", Settings, "nav-settings")}
         {perms.systemChecks && item("/settings/system", "System checks", ShieldCheck, "nav-system")}

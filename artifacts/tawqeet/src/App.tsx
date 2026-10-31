@@ -14,6 +14,7 @@ import LoginPage from '@/pages/login';
 import ConfirmPage from '@/pages/confirm';
 import ClientsPage from '@/pages/clients';
 import ClientDetailPage from '@/pages/client-detail';
+import ClientBrainPage from '@/pages/client-brain';
 import SettingsPage from '@/pages/settings';
 import SystemPage from '@/pages/system';
 
@@ -43,6 +44,7 @@ function Gate() {
           <Route path="/"><Redirect to="/clients" /></Route>
           <Route path="/login"><Redirect to="/clients" /></Route>
           <Route path="/clients"><ClientsPage user={user} /></Route>
+          <Route path="/clients/:id/brain"><ClientBrainPage user={user} /></Route>
           <Route path="/clients/:id"><ClientDetailPage user={user} /></Route>
           <Route path="/settings"><SettingsPage user={user} /></Route>
           <Route path="/settings/system"><SystemPage user={user} /></Route>

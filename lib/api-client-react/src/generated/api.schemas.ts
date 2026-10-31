@@ -5,6 +5,201 @@
  * Tawqeet foundation API
  * OpenAPI spec version: 0.1.0
  */
+export type BrainProfileInputLanguagesItem = typeof BrainProfileInputLanguagesItem[keyof typeof BrainProfileInputLanguagesItem];
+
+
+export const BrainProfileInputLanguagesItem = {
+  en: 'en',
+  ar: 'ar',
+} as const;
+
+export interface BrainProfileInput {
+  /** @maxLength 10000 */
+  offer: string;
+  /** @maxLength 10000 */
+  whoYouSellTo: string;
+  /** @maxLength 500 */
+  dealSize: string;
+  /**
+     * @maxItems 3
+     * @items.maxLength 2000
+     */
+  topPains: string[];
+  /**
+     * @maxItems 100
+     * @items.maxLength 2000
+     */
+  proofPoints: string[];
+  /**
+     * @maxItems 100
+     * @items.maxLength 500
+     */
+  wordsToNeverUse: string[];
+  /**
+     * @minItems 1
+     * @maxItems 2
+     */
+  languages: BrainProfileInputLanguagesItem[];
+  /** @maxLength 2000 */
+  tone: string;
+  /**
+     * @maxItems 100
+     * @items.maxLength 2000
+     */
+  differentiators: string[];
+  /**
+     * @maxItems 100
+     * @items.maxLength 2000
+     */
+  noGoClaims: string[];
+}
+
+export type BrainCaseStudySource = typeof BrainCaseStudySource[keyof typeof BrainCaseStudySource];
+
+
+export const BrainCaseStudySource = {
+  upload: 'upload',
+  url: 'url',
+  form: 'form',
+  website: 'website',
+} as const;
+
+export type CaseStudyInputLanguage = typeof CaseStudyInputLanguage[keyof typeof CaseStudyInputLanguage];
+
+
+export const CaseStudyInputLanguage = {
+  en: 'en',
+  ar: 'ar',
+} as const;
+
+export interface CaseStudyInput {
+  /** @maxLength 500 */
+  customerName: string;
+  /** @maxLength 500 */
+  customerVertical: string;
+  /** @maxLength 500 */
+  customerCountry: string;
+  /** @maxLength 500 */
+  customerSizeBand: string;
+  /**
+     * @minLength 1
+     * @maxLength 10000
+     */
+  problem: string;
+  /**
+     * @minLength 1
+     * @maxLength 10000
+     */
+  solution: string;
+  /** @maxLength 2000 */
+  resultMetric: string;
+  /** @maxLength 2000 */
+  resultValue: string;
+  /** @maxLength 500 */
+  timeframe: string;
+  /** @maxLength 10000 */
+  quote: string;
+  /** @maxLength 500 */
+  quotePersonTitle: string;
+  canNameCustomer: boolean;
+  language: CaseStudyInputLanguage;
+  approved: boolean;
+}
+
+export type BrainCaseStudy = CaseStudyInput & ({
+  id: string;
+  source: BrainCaseStudySource;
+  /** @nullable */
+  sourceRef: string | null;
+  createdAt: string;
+});
+
+export type BrainEntryKind = typeof BrainEntryKind[keyof typeof BrainEntryKind];
+
+
+export const BrainEntryKind = {
+  website: 'website',
+  form: 'form',
+  crm: 'crm',
+  learning: 'learning',
+} as const;
+
+export type BrainEntryMeta = {[key: string]: unknown};
+
+export interface BrainEntry {
+  id: string;
+  kind: BrainEntryKind;
+  content: string;
+  meta: BrainEntryMeta;
+  createdAt: string;
+}
+
+export type BrainResponseStatus = {
+  aiConfigured: boolean;
+  aiMessage: string;
+  hubspotConfigured: boolean;
+  storageConfigured: boolean;
+};
+
+export interface BrainResponse {
+  profile: BrainProfileInput;
+  entries: BrainEntry[];
+  caseStudies: BrainCaseStudy[];
+  learnings: BrainEntry[];
+  status: BrainResponseStatus;
+}
+
+export interface BrainUrlInput {
+  /** @maxLength 2000 */
+  url: string;
+}
+
+export interface CaseExtractionInput {
+  /** @maxLength 2000 */
+  url?: string;
+  /** @maxLength 2000 */
+  objectPath?: string;
+}
+
+export interface BrainUploadInput {
+  /**
+     * @minLength 1
+     * @maxLength 250
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 10485760
+     */
+  size: number;
+  /** @maxLength 200 */
+  contentType: string;
+}
+
+export type BrainCsvInputKind = typeof BrainCsvInputKind[keyof typeof BrainCsvInputKind];
+
+
+export const BrainCsvInputKind = {
+  contacts: 'contacts',
+  won_deals: 'won_deals',
+} as const;
+
+export interface BrainCsvInput {
+  /**
+     * @minLength 1
+     * @maxLength 1000000
+     */
+  csv: string;
+  kind: BrainCsvInputKind;
+}
+
+export interface BrainImportResult {
+  message: string;
+  imported: number;
+  skipped: number;
+  warnings: string[];
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -120,4 +315,16 @@ export interface SystemCheck {
   checkedAt: string;
   checks: ConfigCheck[];
 }
+
+export type RequestBrainUpload200 = {
+  uploadUrl: string;
+  objectPath: string;
+};
+
+export type GetBrainLearningsParams = {
+/**
+ * @maxLength 200
+ */
+vertical?: string;
+};
 

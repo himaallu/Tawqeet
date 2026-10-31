@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-31 — Phase 2: client Brain
+
+- Per-client editable onboarding/profile, website crawl and evidence extraction using the server-only AI SDK.
+- First-class case studies: short form, public URL, PDF/DOCX/PPTX upload, draft review, explicit approval and customer naming permission.
+- Private App Storage with tenant-owned upload references; public URL fetching blocks private/reserved destinations and DNS rebinding.
+- Contacts/won-deals CSV imports with deduplication, plus HubSpot companies and closed-won deals through private-token or connected access. Client OAuth remains a stub.
+- Atomic Postgres trigger captures reply-classification changes as learnings, with a last-50 client/vertical retrieval boundary.
+- Future writer context excludes unapproved evidence and anonymises private customers before prompting.
+- System checks now cover Brain AI, private storage, HubSpot access and the learning trigger.
+- Backend regression coverage for network safety, document parsing, CSVs, trigger semantics, writer evidence filtering, learning limits and deduplication.
+- No radar, lead discovery, writer, outbound sending or automatic CRM sync added.
+
 ## 2026-10-31 — Phase 0: foundation
 
 ### Built

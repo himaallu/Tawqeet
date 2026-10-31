@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetClient, useUpdateClient, useDeleteClient, getGetClientQueryKey, getListClientsQueryKey, getGetAgencyQueryKey, type User } from "@workspace/api-client-react";
-import { ArrowLeft, Pencil, Trash2, Globe, Ban } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Globe, Ban, Brain } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,6 +50,7 @@ export default function ClientDetailPage({ user }: { user: User }) {
     <div className="rise">
       {back}
       <PageHeader eyebrow={"Added " + format(new Date(c.createdAt), "d MMM yyyy")} title={<span dir="auto" data-testid="text-client-name">{c.name}</span>}>
+        <Link href={"/clients/" + c.id + "/brain"} className="inline-flex items-center h-9 px-4 rounded-md bg-accent text-accent-foreground text-sm font-medium hover:bg-accent/90" data-testid="link-client-brain"><Brain className="h-4 w-4 mr-1.5" />Brain</Link>
         {!editing && <Button variant="outline" onClick={() => { update.reset(); setEditing(true); }} data-testid="button-edit-client"><Pencil className="h-4 w-4 mr-1.5" />Edit</Button>}
         {perms.deleteClients
           ? <Button variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/5" onClick={() => { del.reset(); setConfirm(true); }} data-testid="button-delete-client"><Trash2 className="h-4 w-4 mr-1.5" />Delete</Button>

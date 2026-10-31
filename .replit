@@ -44,6 +44,8 @@ timeoutMs = 20000
 [userenv.shared]
 OWNER_EMAIL = "alluhimasri@gmail.com"
 RESEND_FROM_EMAIL = "onboarding@resend.dev"
+AI_MODEL = "claude-sonnet-4-5"
+AI_PROVIDER = "anthropic"
 
 [nix]
 channel = "stable-25_05"

@@ -5,6 +5,8 @@ import { GetSystemCheckResponse } from "@workspace/api-zod";
 import { requireOwner, requireUser } from "../lib/security";
 import { appOrigin } from "../lib/config";
 import { checkResend } from "../lib/resend";
+import { aiConfiguration } from "../lib/brain/extract";
+import { hubspotConfigured } from "../lib/brain/crm";
 const router: IRouter = Router();
 
 router.get("/settings/system", requireUser, requireOwner, async (_req, res): Promise<void> => {
@@ -34,6 +36,17 @@ router.get("/settings/system", requireUser, requireOwner, async (_req, res): Pro
   for (const [key, label] of [["GEMINI_API_KEY", "Google Gemini"], ["ANTHROPIC_API_KEY", "Anthropic"], ["OPENAI_API_KEY", "OpenAI"]] as const) {
     add(key, label, "ai", false, Boolean(process.env[key]), process.env[key] ? "Present. Presence only; no AI request was made." : "Not configured. Optional until AI features are enabled.");
   }
+  const ai = aiConfiguration();
+  add("BRAIN_AI", "Brain extraction", "ai", true, ai.configured, ai.message);
+  const hubspot = await hubspotConfigured();
+  add("HUBSPOT_TOKEN", "HubSpot CRM access", "optional", false, hubspot, hubspot
+    ? process.env.HUBSPOT_TOKEN ? "Server-side private app token configured. Read access is checked on import." : "HubSpot connection available. Import is always a human action."
+    : "Connect HubSpot or add HUBSPOT_TOKEN with companies and deals read access.");
+  add("PRIVATE_OBJECT_DIR", "Private document storage", "core", true, Boolean(process.env.PRIVATE_OBJECT_DIR),
+    process.env.PRIVATE_OBJECT_DIR ? "Configured. Document bytes stay in private App Storage." : "Not configured. Document upload is unavailable.");
+  const trigger = await db.execute(sql`select 1 from pg_trigger where tgname = 'tawqeet_reply_learning' and tgrelid = 'sends'::regclass and tgenabled <> 'D'`);
+  add("BRAIN_LEARNING_TRIGGER", "Reply learning capture", "core", true, trigger.rows.length > 0,
+    trigger.rows.length ? "Database trigger active. New reply classifications are captured atomically." : "Missing. Install scripts/brain-learning.sql with the schema migration.");
   for (const [key, label] of [
     ["FIRECRAWL_API_KEY", "Hosted scraper"], ["GOOGLE_CLIENT_ID", "Google OAuth client"],
     ["GOOGLE_CLIENT_SECRET", "Google OAuth secret"], ["MICROSOFT_CLIENT_ID", "Microsoft OAuth client"],

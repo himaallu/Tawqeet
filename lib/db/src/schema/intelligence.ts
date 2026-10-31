@@ -13,6 +13,7 @@ export const brainEntries = pgTable("brain_entries", {
 }, t => [
   foreignKey({ columns: [t.clientId, t.agencyId], foreignColumns: [clients.id, clients.agencyId] }).onDelete("cascade"),
   index("brain_client_idx").on(t.agencyId, t.clientId),
+  index("brain_learning_vertical_idx").on(t.agencyId, t.clientId, sql`lower(${t.meta}->>'vertical')`, t.createdAt.desc()).where(sql`${t.kind} = 'learning'`),
   check("brain_kind_valid", sql`${t.kind} in ('website','form','crm','learning')`),
 ]);
 

@@ -1,8 +1,8 @@
 # Tawqeet
 
-Tawqeet is a multi-tenant B2B outbound workspace for agencies in the UAE and GCC. It is being built in phases. **Only the foundation is enabled:** passwordless sign-in, one agency, client profiles and Settings → System check.
+Tawqeet is a multi-tenant B2B outbound workspace for agencies in the UAE and GCC. Active: passwordless sign-in, one agency, client profiles, a per-client Brain and Settings → System check.
 
-Radar, Leads, Review & Send, Brain and Plays are labelled “Soon”. No outbound email, scraping, enrichment, scoring, AI generation or mailbox connection is enabled.
+Radar, Leads, Review & Send and Plays remain deferred. Brain supports website crawling, onboarding, case-study uploads and approval, CRM imports and reply learnings. No outbound sending, radar, lead enrichment or mailbox connection is enabled.
 
 ## Stack
 
@@ -12,7 +12,7 @@ Radar, Leads, Review & Send, Brain and Plays are labelled “Soon”. No outboun
 - Resend magic-link emails through the connected integration
 - Hashed, single-use magic links and PostgreSQL-backed sessions; no passwords
 - pg-boss in a separate `worker/index.ts` process, using the same PostgreSQL
-- Vercel AI SDK server-only entry point at `server/lib/ai.ts` (not called this phase)
+- Vercel AI SDK server-only entry point at `server/lib/ai.ts`
 - Arabic text support using `dir="auto"`
 
 This uses the approved React/Vite + Express stack instead of the original Next.js specification. It does not use Replit Auth or local passwords.
@@ -87,7 +87,23 @@ Names only are listed below; values belong in Secrets or environment settings, n
 
 Resend credentials are managed by the connected integration. No `RESEND_API_KEY` is required or exposed to the browser.
 
-### Reserved for later phases
+### Brain configuration
+
+- `AI_PROVIDER` and `AI_MODEL` select the extraction provider and model. This workspace uses Anthropic. Keep `ANTHROPIC_API_KEY` in Secrets; no key is ever sent to the browser.
+- `HUBSPOT_TOKEN` optionally supplies a HubSpot private app token with companies/deals read access. Without it, imports use the connected HubSpot integration. Tokens and connections are server-side and agency-shared; staff must confirm the selected client's data before importing.
+- `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS`, `DEFAULT_OBJECT_STORAGE_BUCKET_ID` are managed by App Storage. Uploaded document bytes live in private storage, not Postgres.
+- PDF, DOCX, PPTX: max 10 MB, readable text only. PDF extraction reads up to 30 pages from documents of at most 100 pages; slides read up to 60 slides. Scanned/image-only files need OCR and are rejected with a clear message.
+- CSV: contacts or won deals, up to 1 MB and 2,000 rows. Select won deals for stage-less won-only exports; explicit non-won stages are skipped. Repeated external IDs are skipped. HubSpot lite imports up to 2,000 companies and 2,000 closed-won deals, with warnings on limits.
+- Website crawling reads the homepage and up to 10 same-domain pages. Private-network destinations and unsafe redirects are blocked with DNS pinning. JavaScript-only sites may need the onboarding form.
+- AI imports are unapproved and cannot name customers by default. Review/edit each case study and tick Approved explicitly.
+
+For the future writer use `getBrainWriterContext(agencyId, clientId, vertical)` from `server/lib/brain.ts`. It returns only approved case studies, anonymises private customer names before prompting, and supplies the last 50 learnings for that client and vertical.
+
+`pnpm run db:migrate` applies the development Drizzle schema **and** installs `scripts/brain-learning.sql`. For production, use the normal Publish schema flow, then explicitly apply the idempotent companion SQL with your production migration process. It is not run on server startup. Settings → System check verifies the trigger is installed. Classification changes capture learning in the same transaction; unchanged classifications do not duplicate entries.
+
+Run backend Brain regressions with `pnpm --filter @workspace/api-server run test:brain` against the development database.
+
+### Additional provider options and later phases
 
 - `ENCRYPTION_KEY` — 64 hexadecimal characters for AES-256-GCM encryption of OAuth tokens.
 - `GEMINI_API_KEY` — optional Gemini provider credential.
@@ -136,7 +152,7 @@ Schedules for radar every 30 minutes and nightly score decay are deliberately de
 
 - [x] Phase 0 — Project setup, all foundation tables, Resend magic links, sessions, one agency, clients, system diagnostics and worker foundation
 - [ ] Phase 1 — Radar and business-signal collection
-- [ ] Phase 2 — Brain, client learning and case studies
+- [x] Phase 2 — Brain, client learning, case-study approval and CRM import lite (client OAuth deferred)
 - [ ] Phase 3 — Leads, enrichment and temperature scoring
 - [ ] Phase 4 — Plays and three email variants
 - [ ] Phase 5 — AI inbox simulations and review
@@ -149,6 +165,6 @@ Phase names after 0 are provisional summaries; add the definitive build prompts 
 
 - No real sign-in email has been sent as an automated test. The test sender can only reach recipients allowed by the connected Resend account.
 - Signed-in screens require a real magic-link session; no authentication bypass is supplied.
-- The Phase 2 case-study field specification was not attached. The minimal schema and the open question are documented in `docs/README.md`.
+- Client-specific CRM OAuth is intentionally a “coming soon” stub. HubSpot connection/private-token imports are available now.
 - Future features have tables and demo fixtures only, not APIs or working screens.
-- Automated auth/tenant regression tests are not part of this first-build delivery.
+- No Phase 4 writer, outbound sending, reply classifier or OCR is built yet. Future reply handling only needs to set `sends.reply_class`; database capture is ready.

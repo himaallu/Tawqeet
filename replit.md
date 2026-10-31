@@ -1,6 +1,6 @@
 # Tawqeet
 
-Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Only the foundation is active: Resend magic-link login, Postgres sessions, one agency, clients and Settings → System check.
+Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Active: Resend magic-link login, Postgres sessions, one agency, clients, client Brain and Settings → System check.
 
 ## Scope and decisions
 
@@ -11,7 +11,9 @@ Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Only the foundation 
 - Initial owner claims require the configured owner email and a real one-time email verification. No demo login/auth bypass.
 - Client viewers are intentionally denied agency data until client assignments exist.
 - No email is sent without a human action. No outbound-send endpoint exists this phase.
-- The Phase 2 case-study prompt was missing; the minimal schema is provisional, documented in `docs/README.md`.
+- Brain evidence requires explicit human approval. The future writer must use `server/lib/brain.ts`, not raw website or case-study entries; unnamed customers must be anonymised before prompting.
+- The HubSpot connection/private app token is shared by the agency. Import is a deliberate action into a selected client, never an automatic sync. Client OAuth remains a stub.
+- Reply-learning capture is a Postgres trigger installed by the schema migration. It must work even when a future worker or webhook updates `sends` outside the API.
 
 ## Commands
 
@@ -20,7 +22,8 @@ Tawqeet is a B2B outbound agency workspace for the UAE/GCC. Only the foundation 
 - Separate process: `Tawqeet Worker` / `pnpm run worker`
 - Static validation: `pnpm run typecheck`
 - Full build: `pnpm run build`
-- Development schema only: `pnpm run db:migrate`
+- Development schema only: `pnpm run db:migrate` (Drizzle plus reply-learning SQL trigger)
+- Brain regressions: `pnpm --filter @workspace/api-server run test:brain`
 - Idempotent fixtures: `pnpm run db:seed`
 
 ## Source map

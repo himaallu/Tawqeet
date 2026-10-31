@@ -68,7 +68,7 @@ export default function ClientsPage({ user }: { user: User }) {
           </div>
           <ul>
             {filtered.map((c) => (
-              <li key={c.id} className="border-b last:border-0">
+              <li key={c.id} className="border-b last:border-0 relative">
                 <Link href={"/clients/" + c.id} data-testid={"row-client-" + c.id}
                   className="group grid md:grid-cols-[2fr_1.4fr_1.2fr_1fr_auto] gap-1 md:gap-4 items-center px-5 py-3.5 hover:bg-secondary/40 transition-colors">
                   <div className="min-w-0">
@@ -80,6 +80,7 @@ export default function ClientsPage({ user }: { user: User }) {
                   <div className="text-xs font-mono text-muted-foreground">{format(new Date(c.createdAt), "d MMM yyyy")}</div>
                   <ArrowUpRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </Link>
+                <Link href={"/clients/" + c.id + "/brain"} className="block px-5 pb-3 -mt-1 text-xs text-accent md:absolute md:right-14 md:top-1/2 md:-translate-y-1/2 md:p-0 md:m-0 md:font-mono hover:underline" data-testid={"link-brain-" + c.id}>Open Brain</Link>
               </li>
             ))}
           </ul>

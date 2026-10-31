@@ -6,7 +6,6 @@ import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { db, aiUsage, clients } from "@workspace/db";
 
-// Foundation only: no route or worker calls AI in this phase.
 export async function generateForAgency<T>(input: {
   agencyId: string; clientId?: string; purpose: string; prompt: string; schema: z.ZodType<T>;
 }): Promise<T> {
@@ -24,7 +23,7 @@ export async function generateForAgency<T>(input: {
     : provider === "anthropic" ? createAnthropic({ apiKey: key })(modelName)
     : provider === "openai" ? createOpenAI({ apiKey: key })(modelName) : null;
   if (!model) throw new Error("AI_PROVIDER must be gemini, anthropic or openai.");
-  const result = await generateObject({ model, schema: input.schema, prompt: input.prompt });
+  const result = await generateObject({ model, schema: input.schema, prompt: input.prompt, maxRetries: 2, abortSignal: AbortSignal.timeout(120_000) });
   const tokensIn = result.usage.inputTokens ?? 0;
   const tokensOut = result.usage.outputTokens ?? 0;
   const inRate = Number(process.env.AI_INPUT_COST_PER_MILLION);
