@@ -16,7 +16,7 @@ export const brainEntries = pgTable("brain_entries", {
   check("brain_kind_valid", sql`${t.kind} in ('website','form','crm','learning')`),
 ]);
 
-// Phase 2 field specification was not supplied; this is the documented minimal foundation.
+// Legacy foundation columns are retained so schema upgrades do not discard existing data.
 export const caseStudies = pgTable("case_studies", {
   id: uuid("id").defaultRandom().primaryKey(),
   agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
@@ -28,6 +28,37 @@ export const caseStudies = pgTable("case_studies", {
   results: jsonb("results").notNull().default({}),
   content: text("content").notNull().default(""),
   sourceUrl: text("source_url"),
+  customerName: text("customer_name").notNull().default(""),
+  customerVertical: text("customer_vertical").notNull().default(""),
+  customerCountry: text("customer_country").notNull().default(""),
+  customerSizeBand: text("customer_size_band").notNull().default(""),
+  problem: text("problem").notNull().default(""),
+  resultMetric: text("result_metric").notNull().default(""),
+  resultValue: text("result_value").notNull().default(""),
+  timeframe: text("timeframe").notNull().default(""),
+  quote: text("quote").notNull().default(""),
+  quotePersonTitle: text("quote_person_title").notNull().default(""),
+  canNameCustomer: boolean("can_name_customer").notNull().default(false),
+  language: text("language").notNull().default("en"),
+  source: text("source", { enum: ["upload", "url", "form", "website"] }).notNull().default("form"),
+  sourceRef: text("source_ref"),
+  approved: boolean("approved").notNull().default(false),
+  createdAt: createdAt(),
+}, t => [
+  foreignKey({ columns: [t.clientId, t.agencyId], foreignColumns: [clients.id, clients.agencyId] }).onDelete("cascade"),
+  index("case_studies_client_idx").on(t.agencyId, t.clientId),
+  check("case_source_valid", sql`${t.source} in ('upload','url','form','website')`),
+  check("case_language_valid", sql`${t.language} in ('en','ar')`),
+]);
+
+export const brainUploads = pgTable("brain_uploads", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
+  clientId: uuid("client_id").notNull(),
+  objectPath: text("object_path").notNull().unique(),
+  name: text("name").notNull(),
+  contentType: text("content_type").notNull(),
+  size: integer("size").notNull(),
   createdAt: createdAt(),
 }, t => [foreignKey({ columns: [t.clientId, t.agencyId], foreignColumns: [clients.id, clients.agencyId] }).onDelete("cascade")]);
 

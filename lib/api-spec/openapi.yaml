@@ -151,8 +151,255 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/SystemCheck" }
+  /clients/{id}/brain:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getBrain
+      responses:
+        "200":
+          description: Client knowledge and sources
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainResponse" }
+    patch:
+      operationId: saveBrainProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BrainProfileInput" }
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainResponse" }
+  /clients/{id}/brain/crawl:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: crawlBrainWebsite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BrainUrlInput" }
+      responses:
+        "200":
+          description: Extracted and saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainImportResult" }
+  /clients/{id}/brain/case-studies:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: createBrainCaseStudy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CaseStudyInput" }
+      responses:
+        "201":
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainCaseStudy" }
+  /clients/{id}/brain/case-studies/{caseId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: caseId, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: updateBrainCaseStudy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CaseStudyInput" }
+      responses:
+        "200":
+          description: Saved and approval updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainCaseStudy" }
+  /clients/{id}/brain/case-studies/extract:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: extractBrainCaseStudies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CaseExtractionInput" }
+      responses:
+        "200":
+          description: Extracted as unapproved drafts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainImportResult" }
+  /clients/{id}/brain/uploads:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: requestBrainUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BrainUploadInput" }
+      responses:
+        "200":
+          description: Private signed upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [uploadUrl, objectPath]
+                properties:
+                  uploadUrl: { type: string }
+                  objectPath: { type: string }
+  /clients/{id}/brain/crm/csv:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: importBrainCsv
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BrainCsvInput" }
+      responses:
+        "200":
+          description: CRM records imported
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainImportResult" }
+  /clients/{id}/brain/crm/hubspot:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: importBrainHubspot
+      responses:
+        "200":
+          description: Companies and closed-won deals imported
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrainImportResult" }
+  /clients/{id}/brain/learnings:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: vertical, in: query, schema: { type: string, maxLength: 200 } }
+    get:
+      operationId: getBrainLearnings
+      responses:
+        "200":
+          description: Most recent 50 reply learnings
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/BrainEntry" } }
 components:
   schemas:
+    BrainProfileInput:
+      type: object
+      required: [offer, whoYouSellTo, dealSize, topPains, proofPoints, wordsToNeverUse, languages, tone, differentiators, noGoClaims]
+      properties:
+        offer: { type: string, maxLength: 10000 }
+        whoYouSellTo: { type: string, maxLength: 10000 }
+        dealSize: { type: string, maxLength: 500 }
+        topPains: { type: array, maxItems: 3, items: { type: string, maxLength: 2000 } }
+        proofPoints: { type: array, maxItems: 100, items: { type: string, maxLength: 2000 } }
+        wordsToNeverUse: { type: array, maxItems: 100, items: { type: string, maxLength: 500 } }
+        languages: { type: array, minItems: 1, maxItems: 2, items: { type: string, enum: [en, ar] } }
+        tone: { type: string, maxLength: 2000 }
+        differentiators: { type: array, maxItems: 100, items: { type: string, maxLength: 2000 } }
+        noGoClaims: { type: array, maxItems: 100, items: { type: string, maxLength: 2000 } }
+    BrainCaseStudy:
+      allOf:
+        - { $ref: "#/components/schemas/CaseStudyInput" }
+        - type: object
+          required: [id, source, sourceRef, createdAt]
+          properties:
+            id: { type: string }
+            source: { type: string, enum: [upload, url, form, website] }
+            sourceRef: { type: [string, "null"] }
+            createdAt: { type: string }
+    CaseStudyInput:
+      type: object
+      required: [customerName, customerVertical, customerCountry, customerSizeBand, problem, solution, resultMetric, resultValue, timeframe, quote, quotePersonTitle, canNameCustomer, language, approved]
+      properties:
+        customerName: { type: string, maxLength: 500 }
+        customerVertical: { type: string, maxLength: 500 }
+        customerCountry: { type: string, maxLength: 500 }
+        customerSizeBand: { type: string, maxLength: 500 }
+        problem: { type: string, minLength: 1, maxLength: 10000 }
+        solution: { type: string, minLength: 1, maxLength: 10000 }
+        resultMetric: { type: string, maxLength: 2000 }
+        resultValue: { type: string, maxLength: 2000 }
+        timeframe: { type: string, maxLength: 500 }
+        quote: { type: string, maxLength: 10000 }
+        quotePersonTitle: { type: string, maxLength: 500 }
+        canNameCustomer: { type: boolean }
+        language: { type: string, enum: [en, ar] }
+        approved: { type: boolean }
+    BrainEntry:
+      type: object
+      required: [id, kind, content, meta, createdAt]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [website, form, crm, learning] }
+        content: { type: string }
+        meta: { type: object, additionalProperties: {} }
+        createdAt: { type: string }
+    BrainResponse:
+      type: object
+      required: [profile, entries, caseStudies, learnings, status]
+      properties:
+        profile: { $ref: "#/components/schemas/BrainProfileInput" }
+        entries: { type: array, items: { $ref: "#/components/schemas/BrainEntry" } }
+        caseStudies: { type: array, items: { $ref: "#/components/schemas/BrainCaseStudy" } }
+        learnings: { type: array, items: { $ref: "#/components/schemas/BrainEntry" } }
+        status:
+          type: object
+          required: [aiConfigured, aiMessage, hubspotConfigured, storageConfigured]
+          properties:
+            aiConfigured: { type: boolean }
+            aiMessage: { type: string }
+            hubspotConfigured: { type: boolean }
+            storageConfigured: { type: boolean }
+    BrainUrlInput:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string, format: uri, maxLength: 2000 }
+    CaseExtractionInput:
+      type: object
+      properties:
+        url: { type: string, maxLength: 2000 }
+        objectPath: { type: string, maxLength: 2000 }
+    BrainUploadInput:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 250 }
+        size: { type: integer, minimum: 1, maximum: 10485760 }
+        contentType: { type: string, maxLength: 200 }
+    BrainCsvInput:
+      type: object
+      required: [csv, kind]
+      properties:
+        csv: { type: string, minLength: 1, maxLength: 1000000 }
+        kind: { type: string, enum: [contacts, won_deals] }
+    BrainImportResult:
+      type: object
+      required: [message, imported, skipped, warnings]
+      properties:
+        message: { type: string }
+        imported: { type: integer }
+        skipped: { type: integer }
+        warnings: { type: array, items: { type: string } }
     HealthStatus:
       type: object
       required: [status]

@@ -31,6 +31,8 @@ export const clients = pgTable("clients", {
   offer: text("offer").notNull().default(""),
   icp: jsonb("icp").$type<Record<string, unknown>>().notNull().default({}),
   tone: text("tone").notNull().default(""),
+  proofPoints: text("proof_points").array().notNull().default(sql`'{}'::text[]`),
+  differentiators: text("differentiators").array().notNull().default(sql`'{}'::text[]`),
   noGoClaims: text("no_go_claims").array().notNull().default(sql`'{}'::text[]`),
   createdAt: createdAt(),
 }, t => [unique("clients_tenant_key").on(t.id, t.agencyId), index("clients_agency_idx").on(t.agencyId)]);
