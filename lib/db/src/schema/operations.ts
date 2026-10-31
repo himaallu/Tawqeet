@@ -33,6 +33,8 @@ export const sends = pgTable("sends", {
   recipient: text("recipient"),
   subject: text("subject"),
   body: text("body"),
+  deliveryEvent: text("delivery_event"),
+  abArm: text("ab_arm"),
 }, t => [
   foreignKey({ columns: [t.draftId, t.agencyId], foreignColumns: [drafts.id, drafts.agencyId] }).onDelete("cascade"),
   foreignKey({ columns: [t.mailboxId, t.agencyId], foreignColumns: [mailboxes.id, mailboxes.agencyId] }).onDelete("cascade"),

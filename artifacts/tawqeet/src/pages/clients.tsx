@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ClientForm } from "@/components/client-form";
-import { ErrorPanel, Restricted, PageHeader } from "@/components/states";
+import { ErrorPanel, Restricted, PageHeader, UpgradeNotice } from "@/components/states";
 import { can } from "@/lib/roles";
-import { apiErrorMessage } from "@/lib/api-error";
+import { apiErrorMessage, apiStatus } from "@/lib/api-error";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ClientsPage({ user }: { user: User }) {
@@ -93,6 +93,7 @@ export default function ClientsPage({ user }: { user: User }) {
             <DialogTitle className="font-display text-2xl">New client profile</DialogTitle>
             <DialogDescription>Only the name is required. Fill in the rest as you learn it.</DialogDescription>
           </DialogHeader>
+          {create.isError && apiStatus(create.error) === 402 && <div className="mb-4"><UpgradeNotice message={apiErrorMessage(create.error)} /></div>}
           <ClientForm submitLabel="Create client" pending={create.isPending} serverError={create.isError ? apiErrorMessage(create.error) : null}
             onCancel={() => setOpen(false)}
             onSubmit={(data) => create.mutate({ data }, {

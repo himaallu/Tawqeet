@@ -6,9 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ReportBucket } from './reportBucket';
+import type { ReportClient } from './reportClient';
 import type { ReportCount } from './reportCount';
+import type { SentEmail } from './sentEmail';
 
 export interface Report {
+  /** @nullable */
+  clientName: string | null;
+  readOnly: boolean;
+  clients: ReportClient[];
+  sentEmails: SentEmail[];
+  abEnabled: boolean;
+  abArms: ReportBucket[];
   emailsSent: number;
   replies: number;
   positiveReplies: number;

@@ -10,6 +10,18 @@
 
 # Changelog
 
+## 2026-10-31 — Finish demo, part 2: operations and data rights
+
+- Worker digests (Asia/Dubai): `alerts-warm-digest` 08:30 Mon–Fri lists Warm leads not yet digested; `alerts-cold-weekly` 08:30 Monday (first UAE workday) summarises the Cold watchlist. "Send digest now" on Settings → Alerts.
+- Auto-pause: marking a bounce, spam complaint or unsubscribe re-checks the client's day; >3% bounces or 3+ unsubscribes/complaints pauses sending for that client (banner + Resume on Review & Send, audited).
+- Plan limits: 6th client and simulated emails beyond 300/month return HTTP 402 with an Upgrade prompt (clients form, lead actions, Billing notice).
+- Contact data rights on the lead page: Export contact data (JSON) and Delete contact (cascade delete, anonymised audit row and earlier audit rows scrubbed, email suppressed).
+- Client read-only view: `client_viewer` users scoped to one client (`users.client_id`) see only `/reports` (their stats and sent emails). Reports → Share read-only link creates a 7-day `/share/{token}` link.
+- Settings → Mailboxes placeholder (Gmail/Outlook, send-only scopes, "Coming next"). No OAuth.
+- Plays page (`/plays`): one editable play per signal and language (EN/AR).
+- Reports: client filter, sent emails, calibration, and an A/B toggle that sends the second-best variant for ~10% of approvals, with per-arm reply rates.
+- Additive DB: `agencies.ab_test_enabled`, `users.client_id`, `clients.sending_paused_at/sending_paused_reason`, `sends.delivery_event/ab_arm`, `share_links`; mirrored in `scripts/demo.sql`.
+
 ## 2026-10-31 — Finish demo: Review & Send, alerts, billing, compliance, landing
 
 - `/review`: ready emails across demo leads with a side panel (editable winner, switchable variants, simulated inbox). Approve & Send delivers via Resend **only** to `ALERT_EMAIL_TO`/`OWNER_EMAIL` with a `[Demo · to …]` subject prefix, List-Unsubscribe header and opt-out line; records approver and time in `sends`. Blocks free-mail, suppressed contacts, missing opt-out and over the 30/day cap.

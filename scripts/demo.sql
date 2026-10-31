@@ -35,3 +35,18 @@ CREATE TABLE IF NOT EXISTS audit_log (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS audit_log_agency_idx ON audit_log(agency_id, created_at);
+-- Finish-demo part 2 (additive and idempotent).
+ALTER TABLE agencies ADD COLUMN IF NOT EXISTS ab_test_enabled boolean NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS client_id uuid;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS sending_paused_at timestamptz;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS sending_paused_reason text;
+ALTER TABLE sends ADD COLUMN IF NOT EXISTS delivery_event text;
+ALTER TABLE sends ADD COLUMN IF NOT EXISTS ab_arm text;
+CREATE TABLE IF NOT EXISTS share_links (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  agency_id uuid NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
+  client_id uuid NOT NULL,
+  token_hash text NOT NULL UNIQUE,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);

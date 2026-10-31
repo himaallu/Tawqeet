@@ -53,6 +53,16 @@ When a lead turns Hot (70+), Tawqeet emails the demo recipient and POSTs
 to `ALERT_WEBHOOK_URL` (Make → Trello card + SMS). Same lead is not re-alerted
 within 7 days unless its score rises 15+. Every attempt is in Settings → Alerts.
 
+Digests run in the worker at 08:30 Gulf time: Warm leads every workday (Mon–Fri),
+Cold watchlist on Monday. Settings → Alerts → "Send digest now" triggers either.
+Marking Bounced / Spam complaint / Unsubscribe on a sent email can auto-pause the
+client (>3% bounces or 3+ unsubscribes/complaints today); resume from the banner.
+Plan limits: 5 client workspaces and 300 simulated emails per month; beyond that
+the UI shows Upgrade. Lead page: Export contact data / Delete contact (anonymised
+audit kept, email suppressed; Load demo data will recreate a deleted sample lead).
+Reports → choose a client → Share read-only link opens a client-only view.
+Reports → A/B test sends the second-best variant for ~10% of approvals.
+
 Demo path: demo login → Settings → Load demo data → Radar → Autobia (Hot) →
 Rewrite → Review & Send → Approve & Send → Settings → Alerts → Send test alert →
 Billing → Upgrade → Compliance → check `someone@gmail.com` (blocked) → `/welcome` EN/AR.

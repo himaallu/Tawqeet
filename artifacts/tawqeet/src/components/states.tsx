@@ -36,3 +36,13 @@ export function PageHeader({ eyebrow, title, children }: { eyebrow: string; titl
     </div>
   );
 }
+
+/** Shown when the API answers 402 (plan limit): explains and links to Billing instead of failing silently. */
+export function UpgradeNotice({ message }: { message: string }) {
+  return (
+    <div role="alert" className="rounded-md border border-accent/40 bg-accent/10 p-3 text-sm flex flex-wrap items-center gap-3" data-testid="notice-upgrade">
+      <span className="flex-1">{message}</span>
+      <a href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/settings/billing`} className="rounded-md bg-accent text-accent-foreground px-3 py-1.5 text-xs font-medium">Upgrade</a>
+    </div>
+  );
+}

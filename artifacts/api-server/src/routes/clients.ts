@@ -3,6 +3,7 @@ import { and, eq, desc } from "drizzle-orm";
 import { db, clients } from "@workspace/db";
 import { CreateClientBody, GetClientParams, GetClientResponse, ListClientsResponse } from "@workspace/api-zod";
 import { requireUser, requireOwner, requireAgencyStaff } from "../lib/security";
+import { clientLimitReached } from "../lib/plan";
 const router: IRouter = Router();
 router.use("/clients", requireUser, requireAgencyStaff);
 const serialize = (client: typeof clients.$inferSelect) => ({ ...client, createdAt: client.createdAt.toISOString() });
@@ -27,6 +28,8 @@ router.get("/clients", async (req, res): Promise<void> => {
 router.post("/clients", async (req, res): Promise<void> => {
   const input = parseInput(req.body);
   if (!input) { res.status(400).json({ error: "Enter a client name, valid http(s) website, and valid profile fields." }); return; }
+  const limit = await clientLimitReached(req.user!.agencyId);
+  if (limit) { res.status(402).json({ error: limit, upgrade: true }); return; }
   const [client] = await db.insert(clients).values({ ...input, agencyId: req.user!.agencyId }).returning();
   res.status(201).json(GetClientResponse.parse(serialize(client!)));
 });

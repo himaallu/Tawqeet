@@ -13,7 +13,7 @@ export default function BillingPage() {
       {q.isLoading ? <Skeleton className="h-64" /> : q.isError || !q.data ? <ErrorPanel message={apiErrorMessage(q.error)} onRetry={() => q.refetch()} /> : (() => {
         const b = q.data;
         const stats: [string, string | number][] = [["Client workspaces", `${b.clients} / ${b.includedClients} included`], ["Drafts generated", b.draftsGenerated],
-          ["Simulations run", b.simulationsRun], ["AI calls", b.aiCalls], ["AI cost", b.aiCostUsd === null ? "Pricing not configured" : `USD ${b.aiCostUsd.toFixed(2)}`], ["Emails sent", b.emailsSent]];
+          ["Simulated emails this month", `${b.simulationsThisMonth} / ${b.simulationAllowance}`], ["Simulations (all time)", b.simulationsRun], ["AI calls", b.aiCalls], ["AI cost", b.aiCostUsd === null ? "Pricing not configured" : `USD ${b.aiCostUsd.toFixed(2)}`], ["Emails sent", b.emailsSent]];
         return (
           <div className="space-y-6">
             <section className="rounded-lg border bg-card p-6 flex flex-col md:flex-row gap-6 md:items-center">
@@ -23,6 +23,7 @@ export default function BillingPage() {
                 <ul className="mt-3 text-sm space-y-1">
                   <li className="flex gap-2"><Check className="h-4 w-4 text-accent" />{b.includedClients} client workspaces included</li>
                   <li className="flex gap-2"><Check className="h-4 w-4 text-accent" />+USD {b.extraClientUsd} per extra client</li>
+                  <li className="flex gap-2"><Check className="h-4 w-4 text-accent" />{b.simulationAllowance} simulated emails per month</li>
                   <li className="flex gap-2"><Check className="h-4 w-4 text-accent" />Signal radar, simulated inbox, Hot-lead alerts</li>
                 </ul>
               </div>
@@ -37,6 +38,12 @@ export default function BillingPage() {
                 ) : <p className="mt-3 text-xs text-muted-foreground max-w-[220px] md:ml-auto" data-testid="text-upgrade-unset">Upgrade is unavailable: set STRIPE_PAYMENT_LINK to enable checkout.</p>}
               </div>
             </section>
+            {(b.atClientLimit || b.atSimulationLimit) && (
+              <div role="alert" className="rounded-md border border-accent/40 bg-accent/10 p-3 text-sm" data-testid="notice-plan-limit">
+                {b.atClientLimit && <div>Client workspace limit reached ({b.includedClients}). Upgrade to add more clients at USD {b.extraClientUsd} each.</div>}
+                {b.atSimulationLimit && <div>Simulated email allowance used ({b.simulationAllowance}/month). Upgrade to keep simulating and rewriting drafts.</div>}
+              </div>
+            )}
             <section className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {stats.map(([k, v]) => (
                 <div key={k} className="rounded-lg border bg-card p-4"><div className="text-xs uppercase tracking-wider text-muted-foreground">{k}</div><div className="font-display text-2xl mt-1">{v}</div></div>

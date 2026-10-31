@@ -578,6 +578,8 @@ paths:
   /reports:
     get:
       operationId: getReport
+      parameters:
+        - { name: clientId, in: query, required: false, schema: { type: string } }
       responses:
         "200":
           description: Client report and calibration
@@ -593,6 +595,133 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/LandingInfo" }
+  /settings/alerts/digest:
+    post:
+      operationId: sendDigestNow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DigestInput" }
+      responses:
+        "200":
+          description: Digest attempted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /review/clients/{id}/resume:
+    post:
+      operationId: resumeClientSending
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Sending resumed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /contacts/{id}/export:
+    get:
+      operationId: exportContactData
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: All stored data for this contact
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ContactExport" }
+  /contacts/{id}:
+    delete:
+      operationId: deleteContact
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Contact deleted, anonymised audit kept
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /reports/share:
+    post:
+      operationId: createReportShareLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ShareLinkInput" }
+      responses:
+        "200":
+          description: Read-only client link
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ShareLink" }
+  /share/login:
+    post:
+      operationId: shareLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ShareLoginInput" }
+      responses:
+        "200":
+          description: Client viewer session created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /settings/ab:
+    patch:
+      operationId: updateAbTest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AbTestInput" }
+      responses:
+        "200":
+          description: A/B setting updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /plays:
+    get:
+      operationId: listPlays
+      responses:
+        "200":
+          description: Plays and signals
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlayLibrary" }
+    post:
+      operationId: createPlay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlayInput" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Play" }
+  /plays/{id}:
+    patch:
+      operationId: updatePlay
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlayInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Play" }
 components:
   schemas:
     DemoStatus:
@@ -974,8 +1103,10 @@ components:
           items: { $ref: "#/components/schemas/DemoDraft" }
     SendRecord:
       type: object
-      required: [id, draftId, sentAt, recipient, replyClass, approvedBy]
+      required: [id, draftId, sentAt, recipient, replyClass, approvedBy, deliveryEvent, abArm]
       properties:
+        deliveryEvent: { type: string, nullable: true }
+        abArm: { type: string, nullable: true }
         id: { type: string }
         draftId: { type: string }
         sentAt: { type: string }
@@ -984,8 +1115,11 @@ components:
         approvedBy: { type: string, nullable: true }
     ReviewQueue:
       type: object
-      required: [items, recipient, dailyCap, sentToday]
+      required: [items, recipient, dailyCap, sentToday, paused]
       properties:
+        paused:
+          type: array
+          items: { $ref: "#/components/schemas/PausedClient" }
         items:
           type: array
           items: { $ref: "#/components/schemas/ReviewItem" }
@@ -1009,7 +1143,7 @@ components:
       type: object
       required: [replyClass]
       properties:
-        replyClass: { type: string, enum: [positive, neutral, negative, unsubscribe] }
+        replyClass: { type: string, enum: [positive, neutral, negative, unsubscribe, bounce, complaint] }
     AlertChannel:
       type: object
       required: [key, name, status, live, detail]
@@ -1049,8 +1183,12 @@ components:
         channel: { type: string, enum: [email, sms, trello, asana, clickup, webhook] }
     Billing:
       type: object
-      required: [plan, priceUsd, includedClients, extraClientUsd, clients, extraClients, monthlyTotalUsd, draftsGenerated, simulationsRun, aiCalls, aiCostUsd, emailsSent, paymentLink]
+      required: [plan, priceUsd, includedClients, extraClientUsd, clients, extraClients, monthlyTotalUsd, draftsGenerated, simulationsRun, aiCalls, aiCostUsd, emailsSent, paymentLink, simulationAllowance, simulationsThisMonth, atClientLimit, atSimulationLimit]
       properties:
+        simulationAllowance: { type: integer }
+        simulationsThisMonth: { type: integer }
+        atClientLimit: { type: boolean }
+        atSimulationLimit: { type: boolean }
         plan: { type: string }
         priceUsd: { type: number }
         includedClients: { type: integer }
@@ -1139,8 +1277,20 @@ components:
         count: { type: integer }
     Report:
       type: object
-      required: [emailsSent, replies, positiveReplies, positivePer100, topSignals, bestSubjects, calibration]
+      required: [emailsSent, replies, positiveReplies, positivePer100, topSignals, bestSubjects, calibration, clientName, clients, sentEmails, abEnabled, abArms, readOnly]
       properties:
+        clientName: { type: string, nullable: true }
+        readOnly: { type: boolean }
+        clients:
+          type: array
+          items: { $ref: "#/components/schemas/ReportClient" }
+        sentEmails:
+          type: array
+          items: { $ref: "#/components/schemas/SentEmail" }
+        abEnabled: { type: boolean }
+        abArms:
+          type: array
+          items: { $ref: "#/components/schemas/ReportBucket" }
         emailsSent: { type: integer }
         replies: { type: integer }
         positiveReplies: { type: integer }
@@ -1160,3 +1310,104 @@ components:
       properties:
         bookDemoUrl: { type: string, nullable: true }
         priceUsd: { type: number }
+    DigestInput:
+      type: object
+      required: [kind]
+      properties:
+        kind: { type: string, enum: [warm, cold] }
+    PausedClient:
+      type: object
+      required: [clientId, clientName, reason, pausedAt]
+      properties:
+        clientId: { type: string }
+        clientName: { type: string }
+        reason: { type: string }
+        pausedAt: { type: string }
+    ContactExport:
+      type: object
+      required: [exportedAt, contact, company, legalBasis, signals, drafts, sends]
+      properties:
+        exportedAt: { type: string }
+        contact: { type: object, additionalProperties: true }
+        company: { type: object, additionalProperties: true }
+        legalBasis: { type: string }
+        signals: { type: array, items: { type: object, additionalProperties: true } }
+        drafts: { type: array, items: { type: object, additionalProperties: true } }
+        sends: { type: array, items: { type: object, additionalProperties: true } }
+    ShareLinkInput:
+      type: object
+      required: [clientId]
+      properties:
+        clientId: { type: string }
+    ShareLink:
+      type: object
+      required: [url, expiresAt]
+      properties:
+        url: { type: string }
+        expiresAt: { type: string }
+    ShareLoginInput:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string, pattern: "^[A-Za-z0-9_-]{43}$" }
+    AbTestInput:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: { type: boolean }
+    SentEmail:
+      type: object
+      required: [id, sentAt, leadName, companyName, subject, body, replyClass, abArm]
+      properties:
+        id: { type: string }
+        sentAt: { type: string }
+        leadName: { type: string }
+        companyName: { type: string }
+        subject: { type: string }
+        body: { type: string }
+        replyClass: { type: string, nullable: true }
+        abArm: { type: string, nullable: true }
+    ReportClient:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }
+    Play:
+      type: object
+      required: [id, signalKey, language, name, structure, principles, persona, vertical]
+      properties:
+        id: { type: string }
+        signalKey: { type: string, nullable: true }
+        language: { type: string, enum: [en, ar] }
+        name: { type: string }
+        structure: { type: string }
+        principles: { type: string }
+        persona: { type: string, nullable: true }
+        vertical: { type: string, nullable: true }
+    PlayInput:
+      type: object
+      required: [signalKey, language, name, structure, principles]
+      properties:
+        signalKey: { type: string }
+        language: { type: string, enum: [en, ar] }
+        name: { type: string, maxLength: 120 }
+        structure: { type: string, maxLength: 3000 }
+        principles: { type: string, maxLength: 3000 }
+        persona: { type: string, maxLength: 120, nullable: true }
+    PlayLibrary:
+      type: object
+      required: [plays, signals]
+      properties:
+        plays:
+          type: array
+          items: { $ref: "#/components/schemas/Play" }
+        signals:
+          type: array
+          items:
+            type: object
+            required: [key, name, playHint]
+            properties:
+              key: { type: string }
+              name: { type: string }
+              playHint: { type: string }
