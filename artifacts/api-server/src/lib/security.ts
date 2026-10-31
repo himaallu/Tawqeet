@@ -20,6 +20,8 @@ export function hashToken(value: string): string {
 }
 export const sameOrigin: RequestHandler = (req, res, next) => {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) { next(); return; }
+  // Signed server-to-server webhooks have no browser Origin; they verify their own signature.
+  if (req.path.startsWith("/webhooks/")) { next(); return; }
   try {
     const origin = req.get("origin");
     if (!origin || origin !== appOrigin()) {

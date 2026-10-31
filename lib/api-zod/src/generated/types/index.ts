@@ -59,6 +59,8 @@ export * from './digestInputKind';
 export * from './getBrainLearningsParams';
 export * from './getReportParams';
 export * from './healthStatus';
+export * from './inboundEmailEvent';
+export * from './inboundEmailEventData';
 export * from './inboxSimulation';
 export * from './inboxSimulationMode';
 export * from './inboxSimulationPersonasItem';

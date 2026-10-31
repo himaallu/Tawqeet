@@ -18,6 +18,7 @@
 - `pnpm run smoke`: demo login → Load demo data → Autobia/Foodics Hot → drafts + simulation → rewrite → Approve & Send → test alert → digest → read-only share link → gmail.com blocked. Missing services are SKIP.
 - Direct Trello cards, Twilio SMS, Asana and ClickUp tasks for Hot leads when their env vars exist; Make webhook stays the default. Real status and test per channel on Settings → Alerts.
 - Gmail (gmail.send only) and Outlook (Mail.Send) OAuth with AES-256-GCM encrypted refresh tokens; Settings → Mailboxes shows redirect URIs and enables Connect when configured. `REAL_SEND=true` sends to the actual lead through the connected mailbox (approval, compliance and cap still apply).
+- Inbound reply capture: `POST /api/webhooks/inbound` (Resend inbound, Svix-verified with `INBOUND_WEBHOOK_SECRET`) matches replies to sends by sender + subject, classifies positive/neutral/negative/ooo/unsubscribe with AI (heuristic fallback), records the reply (Brain learning via trigger) and suppresses unsubscribes. Manual Mark reply is kept.
 - `AUDIT.md` and `docs/REPLIT_DEPLOY.md`.
 - Merged the Part 2 commits that were pushed after PR #2 was merged.
 

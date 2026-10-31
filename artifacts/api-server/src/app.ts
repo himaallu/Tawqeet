@@ -40,6 +40,7 @@ app.use(
     },
   }),
 );
+app.use("/api/webhooks/inbound", express.raw({ type: "*/*", limit: "1mb" }));
 app.use("/api/clients/:id/brain/crm/csv", express.json({ limit: "1200kb" }));
 app.use(express.json({ limit: "128kb" }));
 app.use(cookieParser());

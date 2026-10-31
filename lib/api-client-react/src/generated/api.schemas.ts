@@ -958,6 +958,14 @@ export interface MailboxStatus {
   clients: ReportClient[];
 }
 
+export type InboundEmailEventData = { [key: string]: unknown };
+
+export interface InboundEmailEvent {
+  type?: string;
+  data?: InboundEmailEventData;
+  [key: string]: unknown;
+ }
+
 export type RequestBrainUpload200 = {
   uploadUrl: string;
   objectPath: string;

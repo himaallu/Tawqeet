@@ -48,7 +48,7 @@ API routes are in `artifacts/api-server/src/routes`, server libraries in `artifa
 | Gmail (gmail.send) and Outlook (Mail.Send) OAuth with encrypted tokens | Partial: built, not tested against live Google/Microsoft accounts | `lib/mailbox.ts`, `routes/mailboxes.ts`, `pages/mailboxes.tsx` |
 | REAL_SEND=true sends to the actual lead through the connected mailbox | Partial: as above; Outlook can't set a real List-Unsubscribe header through Graph | `routes/review.ts` |
 | Manual reply marking → Brain learning, unsubscribe → suppression | Done | `routes/review.ts` |
-| Inbound reply capture (Resend inbound webhook + AI classification) | Not built | — |
+| Inbound reply capture (Resend inbound webhook, Svix signature, AI classification with heuristic fallback) | Done (tested with a signed local payload) | `lib/inbound.ts`, `routes/webhooks.ts` |
 | A/B test (10% of approvals send the second-best variant) | Done | `routes/review.ts`, `pages/reports.tsx` |
 
 ## Alerts, billing, operations (Phase 7)

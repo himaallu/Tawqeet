@@ -1621,3 +1621,16 @@ export const MailboxOAuthCallbackParams = zod.object({
 export const MailboxOAuthCallbackResponse = zod.void()
 
 
+/**
+ * Resend inbound email webhook (Svix-signed with INBOUND_WEBHOOK_SECRET). Matches the reply to a send and classifies it.
+ */
+export const InboundReplyWebhookBody = zod.object({
+  "type": zod.string().optional(),
+  "data": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+export const InboundReplyWebhookResponse = zod.object({
+  "message": zod.string()
+})
+
+

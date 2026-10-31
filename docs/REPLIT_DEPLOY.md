@@ -27,6 +27,7 @@ Only the names are listed here. Never paste values into code or chat. `.env.exam
 **Email**
 - `RESEND_API_KEY` (or use the Resend connector)
 - `ALERT_EMAIL_TO`
+- Reply capture: `INBOUND_WEBHOOK_SECRET`. In Resend, add an inbound webhook (event `email.received`) pointing to `https://<app>.replit.app/api/webhooks/inbound`, and copy its signing secret into this variable.
 - Real sending: `ENCRYPTION_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `REAL_SEND`
 
 **Alerts**

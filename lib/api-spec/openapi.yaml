@@ -756,6 +756,21 @@ paths:
       responses:
         "302":
           description: Redirect back to Settings → Mailboxes
+  /webhooks/inbound:
+    post:
+      operationId: inboundReplyWebhook
+      description: Resend inbound email webhook (Svix-signed with INBOUND_WEBHOOK_SECRET). Matches the reply to a send and classifies it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InboundEmailEvent" }
+      responses:
+        "200":
+          description: Processed or ignored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
 components:
   schemas:
     DemoStatus:
@@ -1493,3 +1508,9 @@ components:
         clients:
           type: array
           items: { $ref: "#/components/schemas/ReportClient" }
+    InboundEmailEvent:
+      type: object
+      additionalProperties: true
+      properties:
+        type: { type: string }
+        data: { type: object, additionalProperties: true }
