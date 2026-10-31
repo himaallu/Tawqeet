@@ -33,8 +33,8 @@ async function ats(provider: string, slug: string): Promise<Job[]> {
   return rows.filter((x: any) => x.isListed !== false).map((x: any) => ({
     title: String(x.title || x.text || ""),
     url: safeLink(x.absolute_url || x.hostedUrl || x.jobUrl || x.url || x.application_url) || "",
-    date: x.publishedAt || x.createdAt || x.first_published_at || undefined,
-    location: typeof x.location === "string" ? x.location : x.location?.name || x.location?.city || x.categories?.location || "",
+    date: x.publishedAt || x.published_on || x.createdAt || x.created_at || x.first_published_at || undefined,
+    location: typeof x.location === "string" ? x.location : x.location?.name || x.location?.city || x.categories?.location || x.city || "",
   })).filter((x: any) => x.title && x.url).slice(0, 500);
 }
 export async function addEvidence(company: typeof companies.$inferSelect, key: string, title: string, quote: string, url: string,

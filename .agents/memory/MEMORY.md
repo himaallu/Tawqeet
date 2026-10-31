@@ -1,2 +1,4 @@
 - [Drizzle peer alignment](drizzle-peer-alignment.md) — keep optional peer sets aligned across API and database packages to avoid incompatible SQL/column types.
 - [Connection attachment visibility](connection-attachment-visibility.md) — a replacement integration must be attached from the Replit account that authorized it.
+- [Gemini model availability](gemini-model-availability.md) — listing a model does not guarantee new-account generation access; verify a minimal generation call.
+- [Contact company matching](contact-company-matching.md) — use verified domains and current employment; name-only searches can match unrelated businesses.

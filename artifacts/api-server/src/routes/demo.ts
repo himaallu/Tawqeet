@@ -7,7 +7,7 @@ import { appOrigin } from "../lib/config";
 import { leadEvidence } from "../lib/signals/scoring";
 import { hiringRadar, manualSignal } from "../lib/demo/hiring";
 import { seedDemo } from "../lib/demo/seed";
-import { writeDrafts, simulate, rewrite } from "../lib/demo/writer";
+import { writeDrafts, simulate, rewrite, refreshGeminiSummaries } from "../lib/demo/writer";
 
 const router = Router();
 const job = { running:false, stage:"Ready", warnings:[] as string[], error:null as string|null };
@@ -67,7 +67,18 @@ router.get("/demo/leads/:id",async(req,res)=>{
   if(!result){res.status(404).json({error:"Lead not found"});return;}res.json(result);
 });
 router.post("/demo/load",(req,res)=>{
-  const started=start(()=>seedDemo(req.user!.agencyId,stage,warn));
+  const started=start(async()=>{
+    if(req.body?.summariesOnly===true) {
+      stage("Refreshing Gemini summaries with rate-limit pacing");
+      try {await refreshGeminiSummaries(req.user!.agencyId);}
+      catch(e) {
+        const error=e as {statusCode?:number;lastError?:{statusCode?:number};message?:string};
+        const code=error.statusCode||error.lastError?.statusCode;
+        const reason=/quota|rate.limit|resource.exhausted/i.test(error.message||"")?"rate or quota limit":"provider error";
+        throw new Error(`Gemini ${reason} (HTTP ${code||"unknown"}). Existing summaries are retained.`);
+      }
+    } else await seedDemo(req.user!.agencyId,stage,warn);
+  });
   res.status(started?202:409).json(started?{message:"Demo loading started"}:{error:"Another demo job is running."});
 });
 router.post("/demo/radar/run",(req,res)=>{

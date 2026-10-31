@@ -48,7 +48,7 @@ export default function LoginPage({ loginConfigured }: { loginConfigured: boolea
           {demoOn && (
             <div className="rise" data-testid="panel-demo-login">
               <h2 className="font-display text-3xl">Demo workspace</h2>
-              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">This is a shared demo workspace. Contacts are illustrative samples, and no emails are ever sent from it. Anyone with the demo sign-in sees the same data.</p>
+              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">This is a shared demo workspace. Unverified contacts are labeled as samples, and no outreach emails are sent. Anyone with the demo sign-in sees the same data.</p>
               {demoLogin.isError && <p role="alert" className="mt-3 text-sm text-destructive flex gap-2"><AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />{apiErrorMessage(demoLogin.error, "Demo sign-in failed.")}</p>}
               <Button className="mt-6 w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90" disabled={demoLogin.isPending} data-testid="button-demo-login"
                 onClick={() => demoLogin.mutate(undefined, { onSuccess: () => window.location.reload() })}>
