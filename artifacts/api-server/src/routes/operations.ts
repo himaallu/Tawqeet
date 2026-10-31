@@ -83,6 +83,9 @@ router.delete("/contacts/:id", async (req, res) => {
   await db.transaction(async tx => {
     if (row.lead.email) await tx.insert(suppression).values({ agencyId, email: row.lead.email.toLowerCase(), reason: "Contact deleted (data rights request)" });
     await tx.update(alertsLog).set({ leadId: null }).where(and(eq(alertsLog.agencyId, agencyId), eq(alertsLog.leadId, id)));
+    // Anonymise earlier audit rows that named this contact.
+    await tx.update(auditLog).set({ target: sql`replace(${auditLog.target}, ${row.lead.fullName}, ${`contact #${ref}`})` })
+      .where(and(eq(auditLog.agencyId, agencyId), sql`position(${row.lead.fullName} in ${auditLog.target}) > 0`));
     await tx.delete(leads).where(and(eq(leads.agencyId, agencyId), eq(leads.id, id)));
     await tx.insert(auditLog).values({ agencyId, userId: req.user!.id, action: "contact.delete", target: `contact #${ref} at ${row.company.name}`,
       meta: { ref, suppressed: Boolean(row.lead.email) } });

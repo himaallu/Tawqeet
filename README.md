@@ -164,10 +164,11 @@ The Dubai-time worker schedules hourly RSS/news collection and score decay, dail
 - [x] Phase 1 — Definition-driven GCC radar, scheduled collectors and signal settings (external sources require configuration)
 - [x] Phase 2 — Brain, client learning, case-study approval and CRM import lite (client OAuth deferred)
 - [x] Phase 3 — Leads and temperature scoring (demo leads; enrichment via LeadOcean when configured)
-- [ ] Phase 4 — Plays and three email variants (three variants done; Plays editor pending)
+- [x] Phase 4 — Plays (EN/AR editor) and three email variants
 - [x] Phase 5 — AI inbox simulations and Review & Send
 - [x] Phase 6 — Human-approved sending (demo recipient only via Resend) and reply marking → Brain learnings
-- [x] Phase 7 — Hot-lead alerts (email + Make webhook), billing (Stripe Payment Link), compliance, audit log, client report
+- [x] Phase 7 — Hot-lead alerts (email + Make webhook) and Warm/Cold digests, billing with plan limits (Stripe Payment Link), compliance, auto-pause, contact export/delete, audit log, client report with read-only share links and A/B calibration
+- [ ] Mailbox OAuth (Gmail/Outlook send-only) — placeholder page only
 
 Phase names after 0 are provisional summaries; add the definitive build prompts and PRD under `docs/`.
 
