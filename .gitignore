@@ -1,65 +1,31 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# compiled output
-dist
-tmp
-out-tsc
-*.tsbuildinfo
-.expo
-.expo-shared
-.next
-.turbo
-.svelte-kit
-.nuxt
-.output
-.vercel
-
 # dependencies
-node_modules
+node_modules/
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# build output
+dist/
+.next/
+out/
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+*.tsbuildinfo
 
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
-.DS_Store
-Thumbs.db
-
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
-# Replit
-.cache/
-.local/
+# secrets — never commit; use .env.example for names
+.env
 .env*
 !.env.example
+
+# uploads and logs
 uploads/
 *.log
+npm-debug.log*
+
+# local databases
 *.db
-*.db-*
 *.sqlite
 *.sqlite3
-*.sqlite-*
-/generated-artifacts/
+pgdata/
+.data/
+
+# os / editor
+.DS_Store
+.vscode/
+.idea/

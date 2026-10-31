@@ -1,170 +1,85 @@
-# Tawqeet
+# Tawqeet · توقيت
 
-Tawqeet is a multi-tenant B2B outbound workspace for agencies in the UAE and GCC. Active: passwordless sign-in, one agency, client profiles, a per-client Brain and Settings → System check.
-
-Radar, Leads, Review & Send and Plays remain deferred. Brain supports website crawling, onboarding, case-study uploads and approval, CRM imports and reply learnings. No outbound sending, radar, lead enrichment or mailbox connection is enabled.
+Tawqeet is a multi-tenant SaaS for B2B outbound agencies in the UAE and GCC. It watches Gulf business signals, finds the right lead, scores how "hot" the lead is, writes three email variants, tests them on a simulated AI inbox, and lets the agency's client review and send from their own mailbox. **No email is ever sent without a human clicking Send.**
 
 ## Stack
 
-- React + Vite, TypeScript, Tailwind CSS, shadcn/ui
-- Express + TypeScript API in the same project
-- PostgreSQL with Drizzle ORM
-- Resend magic-link emails through the connected integration
-- Hashed, single-use magic links and PostgreSQL-backed sessions; no passwords
-- pg-boss in a separate `worker/index.ts` process, using the same PostgreSQL
-- Vercel AI SDK server-only entry point at `server/lib/ai.ts`
-- Arabic text support using `dir="auto"`
-
-This uses the approved React/Vite + Express stack instead of the original Next.js specification. It does not use Replit Auth or local passwords.
-
-## Run in Replit
-
-The managed web and API workflows run the preview. The **Tawqeet Worker** workflow runs the separate worker. The shared preview gateway routes `/api` to Express and `/` to Vite.
-
-Development schema and offline fixtures:
-
-```sh
-pnpm run db:migrate
-pnpm run db:seed
-```
-
-Seed is idempotent and does not overwrite edited client profiles. It creates one agency, two demo clients, twelve placeholder signal definitions, ten fictional Gulf signals, two demo leads and six draft fixtures. All fixture domains use `.example`; no emails are sent. **Offline fixtures do not bypass login.** The owner account is created only after verifying the first magic link sent to the configured owner address.
+- React + Vite front end, Express + TypeScript API, one project (Tailwind v4, shadcn-style components on Radix)
+- Postgres with Drizzle ORM (migrations in `drizzle/`)
+- Email magic-link auth, sessions in Postgres (no passwords). Mail goes through Replit's Resend connection, or `RESEND_API_KEY`
+- Background jobs: pg-boss in the same Postgres. Two processes: `web` (`server/index.ts`) and `worker` (`worker/index.ts`). Deploy on a Replit **Reserved VM**
+- All AI through `server/lib/ai.ts` (Vercel AI SDK `generateObject` + zod), provider picked by `GEMINI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`; every call logged to `ai_usage` with tokens and cost
+- Web pages: `fetch` + cheerio, Firecrawl fallback for JavaScript pages (`server/lib/scrape.ts`), robots.txt respected
+- People data: LeadOcean behind `server/lib/enrichment.ts`
+- Arabic: `dir="auto"` on every email body; Arabic plays written natively in MSA
 
 ## Run locally
 
-Node.js 24 and pnpm 10 are required. This repository is a pnpm workspace: use `pnpm install`, not `npm install` (the latter is intentionally rejected to avoid conflicting lockfiles).
+```bash
+npm install
+cp .env.example .env          # set DATABASE_URL and ENCRYPTION_KEY at minimum
+npm run db:migrate
+npm run db:seed               # demo agency, 2 clients, 10 Gulf signals, leads, drafts, past sends
+npm run dev                   # web on http://localhost:5000 (set PORT=5050 on macOS: AirPlay uses 5000)
+npm run worker                # background jobs, in a second terminal
+```
 
-1. Install dependencies:
+Sign in as `demo@tawqeet.demo` (owner), `member@tawqeet.demo`, or `viewer@tawqeet.demo` (read-only client viewer). Without Resend configured, the magic link prints in the `npm run dev` log. Without an AI key, the app runs in **offline demo mode**: drafts, classification and the simulated inbox use built-in deterministic logic, and Settings › System check shows AI as red.
 
-   ```sh
-   corepack enable
-   pnpm install
-   ```
+Other scripts: `npm run build`, `npm start` (web + worker together, production), `npm run db:generate` (after editing `server/db/schema.ts`), `npm run lint`, `npm run typecheck`, `npm test` (needs Postgres; uses a separate `tawqeet_test` database).
 
-2. Supply the environment variables below through your shell or secret manager. `.env.example` lists names only and has no credentials. No script writes credentials to disk.
-3. Use a local PostgreSQL database; run `pnpm run db:migrate` and `pnpm run db:seed`.
-4. Set `APP_URL` to the local browser origin, then run:
+Generate an encryption key: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
 
-   ```sh
-   npm run dev
-   ```
+### Deploying on Replit (Reserved VM)
 
-   Open the URL printed by the development gateway. Vite and Express run behind a single-origin local gateway. Start the separate worker in another terminal:
-
-   ```sh
-   npm run worker
-   ```
-
-5. A Resend connection is supplied by Replit's connector runtime. A plain local environment without that runtime cannot send sign-in emails; use the Replit preview for live login. There is no offline or development auth bypass.
-
-`npm run` can invoke scripts, but dependency installation and workspace operations use pnpm.
-
-### Scripts
-
-| Command | Purpose |
-| --- | --- |
-| `pnpm run dev` | Local Vite + Express development gateway |
-| `pnpm run worker` | Separate pg-boss worker |
-| `pnpm run build` | Typecheck, build frontend, compile API and worker |
-| `pnpm run start` | Serve built frontend + API and run the compiled worker as separate processes |
-| `pnpm run db:migrate` | Apply Drizzle schema changes to **development/local** database |
-| `pnpm run db:seed` | Idempotent offline demonstration fixtures |
-| `pnpm run lint` | TypeScript static validation across the project |
-
-`lint` is currently a typecheck, not an ESLint rule suite.
+Build command `npm run build`; run command `npm run db:migrate && npm start`. Set `NODE_ENV=production`, `APP_URL` to the public URL, and the secrets below. Settings › System check shows what's missing.
 
 ## Environment variables
 
-Names only are listed below; values belong in Secrets or environment settings, never source control or client-side variables.
-
-### Required for this foundation
-
-- `DATABASE_URL` — PostgreSQL connection, managed by Replit.
-- `SESSION_SECRET` — random server secret with at least 32 characters for token hashing.
-- `APP_URL` — trusted HTTPS browser origin; the development preview origin is used only in development when this is omitted.
-- `OWNER_EMAIL` — sole address allowed to claim the initial owner account.
-- `RESEND_FROM_EMAIL` — sender address on a verified Resend domain; Resend's test sender has recipient restrictions.
-
-Resend credentials are managed by the connected integration. No `RESEND_API_KEY` is required or exposed to the browser.
-
-### Brain configuration
-
-- `AI_PROVIDER` and `AI_MODEL` select the extraction provider and model. This workspace uses Anthropic. Keep `ANTHROPIC_API_KEY` in Secrets; no key is ever sent to the browser.
-- `HUBSPOT_TOKEN` optionally supplies a HubSpot private app token with companies/deals read access. Without it, imports use the connected HubSpot integration. Tokens and connections are server-side and agency-shared; staff must confirm the selected client's data before importing.
-- `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS`, `DEFAULT_OBJECT_STORAGE_BUCKET_ID` are managed by App Storage. Uploaded document bytes live in private storage, not Postgres.
-- PDF, DOCX, PPTX: max 10 MB, readable text only. PDF extraction reads up to 30 pages from documents of at most 100 pages; slides read up to 60 slides. Scanned/image-only files need OCR and are rejected with a clear message.
-- CSV: contacts or won deals, up to 1 MB and 2,000 rows. Select won deals for stage-less won-only exports; explicit non-won stages are skipped. Repeated external IDs are skipped. HubSpot lite imports up to 2,000 companies and 2,000 closed-won deals, with warnings on limits.
-- Website crawling reads the homepage and up to 10 same-domain pages. Private-network destinations and unsafe redirects are blocked with DNS pinning. JavaScript-only sites may need the onboarding form.
-- AI imports are unapproved and cannot name customers by default. Review/edit each case study and tick Approved explicitly.
-
-For the future writer use `getBrainWriterContext(agencyId, clientId, vertical)` from `server/lib/brain.ts`. It returns only approved case studies, anonymises private customer names before prompting, and supplies the last 50 learnings for that client and vertical.
-
-`pnpm run db:migrate` applies the development Drizzle schema **and** installs `scripts/brain-learning.sql`. For production, use the normal Publish schema flow, then explicitly apply the idempotent companion SQL with your production migration process. It is not run on server startup. Settings → System check verifies the trigger is installed. Classification changes capture learning in the same transaction; unchanged classifications do not duplicate entries.
-
-Run backend Brain regressions with `pnpm --filter @workspace/api-server run test:brain` against the development database.
-
-### Additional provider options and later phases
-
-- `ENCRYPTION_KEY` — 64 hexadecimal characters for AES-256-GCM encryption of OAuth tokens.
-- `GEMINI_API_KEY` — optional Gemini provider credential.
-- `ANTHROPIC_API_KEY` — optional Anthropic provider credential.
-- `OPENAI_API_KEY` — optional OpenAI provider credential.
-- `AI_PROVIDER` — provider selection for the central server-only AI module.
-- `AI_MODEL` — explicit model selection before any AI request.
-- `AI_INPUT_COST_PER_MILLION` — input-token pricing for the selected model.
-- `AI_OUTPUT_COST_PER_MILLION` — output-token pricing for the selected model.
-- `FIRECRAWL_API_KEY` — hosted JavaScript scraping fallback, not used this phase.
-- `GOOGLE_CLIENT_ID` — future Gmail OAuth application identifier.
-- `GOOGLE_CLIENT_SECRET` — future Gmail OAuth application secret.
-- `MICROSOFT_CLIENT_ID` — future Outlook OAuth application identifier.
-- `MICROSOFT_CLIENT_SECRET` — future Outlook OAuth application secret.
-- `STRIPE_SECRET_KEY` — future billing credential.
-- `STRIPE_WEBHOOK_SECRET` — future billing webhook verification secret.
-
-### Runtime
-
-- `NODE_ENV` — development or production mode.
-- `PORT` — service listening port, injected by managed workflows.
-- `BASE_PATH` — frontend mount prefix, injected by the web artifact.
-- `API_PORT` — optional local development API port.
-- `WEB_PORT` — optional local development Vite port.
-- `SERVE_WEB` — enable serving built frontend assets from Express in standalone production mode.
-
-## Security and tenancy
-
-- Client data is agency-scoped at both query and foreign-key boundaries. Agency IDs are derived from the authenticated session, never trusted from input.
-- Roles are `owner`, `member`, and `client_viewer`. Owners manage agency settings, clients and diagnostics. Members can manage client profiles, but cannot delete them. Client viewers are denied agency data until explicit assignments are built.
-- Magic links expire in 15 minutes and are consumed atomically only on an explicit confirmation click. Tokens are never returned by API endpoints or stored in plaintext.
-- Sessions expire after seven days and use HttpOnly, SameSite cookies with Secure enabled on HTTPS. Signing out removes the database session.
-- Mutation endpoints enforce the trusted browser origin. Request bodies, cookie values and magic-link tokens are not logged.
-- Missing optional secrets appear red in System check but do not block the foundation. Presence checks do not pretend to validate provider credentials.
-- No email is sent automatically by seed or worker. Sign-in mail is sent only after a person submits the login form. No outbound-send API exists.
-
-## Publishing later
-
-Use a **Reserved VM**, not Autoscale, so the pg-boss worker stays running. Select that deployment type in Publishing. The API's production command supervises the compiled web/API and worker as separate Node processes; the frontend artifact serves its static build.
-
-Before publishing, set `APP_URL` for the actual published origin and use a verified Resend sender for multi-user delivery. Do not use a development preview URL in production. Replit's Publish flow manages production schema changes; never run `db:migrate` against the managed production database, and do not run migrations or seed automatically during startup.
-
-Schedules for radar every 30 minutes and nightly score decay are deliberately deferred. Only hourly authentication cleanup is scheduled now.
+| Name | Purpose |
+|---|---|
+| `DATABASE_URL` | Postgres connection string |
+| `APP_URL` | Public URL, used in magic links, OAuth redirects and alerts |
+| `PORT` | Web port (default 5000) |
+| `ENCRYPTION_KEY` | 32-byte base64 key; encrypts mailbox OAuth tokens and PM API tokens at rest |
+| `ADMIN_EMAILS` | Comma-separated platform admins (edit signal weights, radar sources, run jobs) |
+| `RESEND_API_KEY` | Resend key, if not using Replit's Resend connection |
+| `EMAIL_FROM` | From address for system emails |
+| `INBOUND_DOMAIN` | Domain for per-send reply-tracking aliases (`r+token@…`) |
+| `INBOUND_WEBHOOK_SECRET` | Shared secret for `POST /api/inbound` (Resend/Postmark inbound) |
+| `AI_PROVIDER` | Optional: `gemini`, `anthropic` or `openai` |
+| `AI_MODEL` | Optional: override the default model |
+| `AI_OFFLINE` | `1` forces offline demo logic (seed, tests) |
+| `GEMINI_API_KEY` | Google Gemini key (also used for the Gmail-style summary check) |
+| `ANTHROPIC_API_KEY` | Anthropic key |
+| `OPENAI_API_KEY` | OpenAI key |
+| `LEADOCEAN_API_KEY` | LeadOcean people/company data |
+| `FIRECRAWL_API_KEY` | Hosted scraper for JavaScript pages |
+| `GOOGLE_CLIENT_ID` | Gmail OAuth (send-only) |
+| `GOOGLE_CLIENT_SECRET` | Gmail OAuth (send-only) |
+| `MICROSOFT_CLIENT_ID` | Outlook OAuth (send-only) |
+| `MICROSOFT_CLIENT_SECRET` | Outlook OAuth (send-only) |
+| `TWILIO_SID` | Twilio account SID for SMS alerts |
+| `TWILIO_TOKEN` | Twilio auth token |
+| `TWILIO_FROM` | Twilio sender number / ID |
+| `HUBSPOT_CLIENT_ID` | HubSpot OAuth for the CRM import |
+| `HUBSPOT_CLIENT_SECRET` | HubSpot OAuth for the CRM import |
+| `STRIPE_SECRET_KEY` | Stripe API key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret (`POST /api/stripe/webhook`) |
+| `STRIPE_PRICE_AGENCY` | Price ID, Agency plan USD 399/month |
+| `STRIPE_PRICE_EXTRA_CLIENT` | Price ID, extra client USD 59/month |
+| `STRIPE_PRICE_SIM_PACK` | Price ID, simulation pack (one-time) |
+| `BOOK_DEMO_URL` | Optional calendar link for "Book a demo" (otherwise it joins the waitlist) |
 
 ## Build status
 
-- [x] Phase 0 — Project setup, all foundation tables, Resend magic links, sessions, one agency, clients, system diagnostics and worker foundation
-- [ ] Phase 1 — Radar and business-signal collection
-- [x] Phase 2 — Brain, client learning, case-study approval and CRM import lite (client OAuth deferred)
-- [ ] Phase 3 — Leads, enrichment and temperature scoring
-- [ ] Phase 4 — Plays and three email variants
-- [ ] Phase 5 — AI inbox simulations and review
-- [ ] Phase 6 — Human-approved mailbox sending and reply handling
-- [ ] Phase 7 — Alerts, billing and operational hardening
+- [x] Phase 0: Context, project setup, scripts, docs
+- [x] Phase 1: Data model, auth, workspaces
+- [x] Phase 2: The Brain (crawl, form, CRM, case studies, learnings)
+- [x] Phase 3: Signal radar, thermometer, hot-lead alerts
+- [x] Phase 4: Writer (3 variants, plays, hard rules)
+- [x] Phase 5: Simulated inbox (6 personas, summaries, spam, score, calibration)
+- [x] Phase 6: Review & Send (Gmail/Outlook send-only, queue, replies, viewer, reports)
+- [x] Phase 7: Billing, compliance, landing page
 
-Phase names after 0 are provisional summaries; add the definitive build prompts and PRD under `docs/`.
-
-## Current limits
-
-- No real sign-in email has been sent as an automated test. The test sender can only reach recipients allowed by the connected Resend account.
-- Signed-in screens require a real magic-link session; no authentication bypass is supplied.
-- Client-specific CRM OAuth is intentionally a “coming soon” stub. HubSpot connection/private-token imports are available now.
-- Future features have tables and demo fixtures only, not APIs or working screens.
-- No Phase 4 writer, outbound sending, reply classifier or OCR is built yet. Future reply handling only needs to set `sends.reply_class`; database capture is ready.
+Build prompts and the PRD live in `docs/`.
