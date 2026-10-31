@@ -7,6 +7,7 @@ export const leads = pgTable("leads", {
   demoKey: text("demo_key"),
   sample: boolean("sample").notNull().default(false),
   language: text("language").notNull().default("en"),
+  legalBasis: text("legal_basis").notNull().default("B2B legitimate interest"),
   id: uuid("id").defaultRandom().primaryKey(),
   agencyId: uuid("agency_id").notNull().references(() => agencies.id, { onDelete: "cascade" }),
   clientId: uuid("client_id").notNull(),

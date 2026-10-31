@@ -75,6 +75,7 @@ export interface DemoEvidence {
 }
 
 export interface DemoLead {
+  legalBasis: string;
   id: string;
   fullName: string;
   title: string;
@@ -505,6 +506,252 @@ export interface ConfigCheck {
 export interface SystemCheck {
   checkedAt: string;
   checks: ConfigCheck[];
+}
+
+export type ReviewItemTemperature = typeof ReviewItemTemperature[keyof typeof ReviewItemTemperature];
+
+
+export const ReviewItemTemperature = {
+  hot: 'hot',
+  warm: 'warm',
+  cold: 'cold',
+} as const;
+
+export type ReviewItemState = typeof ReviewItemState[keyof typeof ReviewItemState];
+
+
+export const ReviewItemState = {
+  ready: 'ready',
+  sent: 'sent',
+  blocked: 'blocked',
+} as const;
+
+export interface SendRecord {
+  id: string;
+  draftId: string;
+  sentAt: string;
+  /** @nullable */
+  recipient: string | null;
+  /** @nullable */
+  replyClass: string | null;
+  /** @nullable */
+  approvedBy: string | null;
+}
+
+export interface ReviewItem {
+  leadId: string;
+  fullName: string;
+  title: string;
+  companyName: string;
+  country: string;
+  /** @nullable */
+  email: string | null;
+  sample: boolean;
+  legalBasis: string;
+  temperature: ReviewItemTemperature;
+  totalScore: number;
+  /** @nullable */
+  topSignal: string | null;
+  winnerDraftId: string;
+  subject: string;
+  /** @nullable */
+  score: number | null;
+  state: ReviewItemState;
+  /** @nullable */
+  blockReason: string | null;
+  send: SendRecord | null;
+  drafts: DemoDraft[];
+}
+
+export interface ReviewQueue {
+  items: ReviewItem[];
+  /** @nullable */
+  recipient: string | null;
+  dailyCap: number;
+  sentToday: number;
+}
+
+export interface SendDraftInput {
+  /** @maxLength 200 */
+  subject: string;
+  /** @maxLength 5000 */
+  body: string;
+}
+
+export interface SendResult {
+  message: string;
+  sendId: string;
+  recipient: string;
+}
+
+export type ReplyInputReplyClass = typeof ReplyInputReplyClass[keyof typeof ReplyInputReplyClass];
+
+
+export const ReplyInputReplyClass = {
+  positive: 'positive',
+  neutral: 'neutral',
+  negative: 'negative',
+  unsubscribe: 'unsubscribe',
+} as const;
+
+export interface ReplyInput {
+  replyClass: ReplyInputReplyClass;
+}
+
+export type AlertChannelKey = typeof AlertChannelKey[keyof typeof AlertChannelKey];
+
+
+export const AlertChannelKey = {
+  email: 'email',
+  sms: 'sms',
+  trello: 'trello',
+  asana: 'asana',
+  clickup: 'clickup',
+  webhook: 'webhook',
+} as const;
+
+export interface AlertChannel {
+  key: AlertChannelKey;
+  name: string;
+  status: string;
+  live: boolean;
+  detail: string;
+}
+
+export interface AlertLogEntry {
+  id: string;
+  /** @nullable */
+  leadName: string | null;
+  /** @nullable */
+  companyName: string | null;
+  channel: string;
+  status: string;
+  /** @nullable */
+  error: string | null;
+  /** @nullable */
+  score: number | null;
+  /** @nullable */
+  test: string | null;
+  createdAt: string;
+}
+
+export interface AlertSettings {
+  channels: AlertChannel[];
+  log: AlertLogEntry[];
+}
+
+export type TestAlertInputChannel = typeof TestAlertInputChannel[keyof typeof TestAlertInputChannel];
+
+
+export const TestAlertInputChannel = {
+  email: 'email',
+  sms: 'sms',
+  trello: 'trello',
+  asana: 'asana',
+  clickup: 'clickup',
+  webhook: 'webhook',
+} as const;
+
+export interface TestAlertInput {
+  channel: TestAlertInputChannel;
+}
+
+export interface Billing {
+  plan: string;
+  priceUsd: number;
+  includedClients: number;
+  extraClientUsd: number;
+  clients: number;
+  extraClients: number;
+  monthlyTotalUsd: number;
+  draftsGenerated: number;
+  simulationsRun: number;
+  aiCalls: number;
+  /** @nullable */
+  aiCostUsd: number | null;
+  emailsSent: number;
+  /** @nullable */
+  paymentLink: string | null;
+}
+
+export interface ComplianceRule {
+  key: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+}
+
+export interface SuppressionEntry {
+  id: string;
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  domain: string | null;
+  reason: string;
+  createdAt: string;
+}
+
+export interface AuditEntry {
+  id: string;
+  action: string;
+  target: string;
+  /** @nullable */
+  actor: string | null;
+  createdAt: string;
+}
+
+export interface Compliance {
+  rules: ComplianceRule[];
+  freeMailDomains: string[];
+  dailyCap: number;
+  suppression: SuppressionEntry[];
+  audit: AuditEntry[];
+}
+
+export interface SuppressionInput {
+  /** @maxLength 254 */
+  value: string;
+  /** @maxLength 200 */
+  reason?: string;
+}
+
+export interface RecipientCheckInput {
+  /** @maxLength 254 */
+  email: string;
+}
+
+export interface RecipientCheck {
+  allowed: boolean;
+  reasons: string[];
+}
+
+export interface ReportBucket {
+  bucket: string;
+  sends: number;
+  replies: number;
+  positive: number;
+  replyRate: number;
+}
+
+export interface ReportCount {
+  name: string;
+  count: number;
+}
+
+export interface Report {
+  emailsSent: number;
+  replies: number;
+  positiveReplies: number;
+  positivePer100: number;
+  topSignals: ReportCount[];
+  bestSubjects: ReportCount[];
+  calibration: ReportBucket[];
+}
+
+export interface LandingInfo {
+  /** @nullable */
+  bookDemoUrl: string | null;
+  priceUsd: number;
 }
 
 export type RequestBrainUpload200 = {

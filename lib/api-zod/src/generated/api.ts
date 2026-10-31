@@ -984,6 +984,7 @@ export const LoadDemoDataResponse = zod.object({
 
 export const GetDemoRadarResponse = zod.object({
   "leads": zod.array(zod.object({
+  "legalBasis": zod.string(),
   "id": zod.string(),
   "fullName": zod.string(),
   "title": zod.string(),
@@ -1063,6 +1064,7 @@ export const GetDemoLeadParams = zod.object({
 })
 
 export const GetDemoLeadResponse = zod.object({
+  "legalBasis": zod.string(),
   "id": zod.string(),
   "fullName": zod.string(),
   "title": zod.string(),
@@ -1135,6 +1137,240 @@ export const RewriteDemoDraftParams = zod.object({
 
 export const RewriteDemoDraftResponse = zod.object({
   "message": zod.string()
+})
+
+
+export const GetReviewQueueResponse = zod.object({
+  "items": zod.array(zod.object({
+  "leadId": zod.string(),
+  "fullName": zod.string(),
+  "title": zod.string(),
+  "companyName": zod.string(),
+  "country": zod.string(),
+  "email": zod.string().nullable(),
+  "sample": zod.boolean(),
+  "legalBasis": zod.string(),
+  "temperature": zod.enum(['hot', 'warm', 'cold']),
+  "totalScore": zod.number().int(),
+  "topSignal": zod.string().nullable(),
+  "winnerDraftId": zod.string(),
+  "subject": zod.string(),
+  "score": zod.number().int().nullable(),
+  "state": zod.enum(['ready', 'sent', 'blocked']),
+  "blockReason": zod.string().nullable(),
+  "send": zod.union([zod.object({
+  "id": zod.string(),
+  "draftId": zod.string(),
+  "sentAt": zod.string(),
+  "recipient": zod.string().nullable(),
+  "replyClass": zod.string().nullable(),
+  "approvedBy": zod.string().nullable()
+}),zod.null()]),
+  "drafts": zod.array(zod.object({
+  "id": zod.string(),
+  "variant": zod.number().int(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "language": zod.string(),
+  "score": zod.number().int().nullable(),
+  "simulation": zod.union([zod.object({
+  "personas": zod.array(zod.object({
+  "name": zod.string(),
+  "verdict": zod.string(),
+  "reason": zod.string()
+})),
+  "gmailSummary": zod.string(),
+  "applePreview": zod.string(),
+  "spamScore": zod.number().int(),
+  "spamFlags": zod.array(zod.string()),
+  "score": zod.number().int(),
+  "mode": zod.enum(['ai', 'sample']),
+  "gmailModel": zod.string(),
+  "notes": zod.array(zod.string())
+}),zod.null()]),
+  "model": zod.string()
+}))
+})),
+  "recipient": zod.string().nullable(),
+  "dailyCap": zod.number().int(),
+  "sentToday": zod.number().int()
+})
+
+
+export const ApproveAndSendDraftParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const approveAndSendDraftBodySubjectMax = 200;
+
+export const approveAndSendDraftBodyBodyMax = 5000;
+
+
+
+export const ApproveAndSendDraftBody = zod.object({
+  "subject": zod.string().max(approveAndSendDraftBodySubjectMax),
+  "body": zod.string().max(approveAndSendDraftBodyBodyMax)
+})
+
+export const ApproveAndSendDraftResponse = zod.object({
+  "message": zod.string(),
+  "sendId": zod.string(),
+  "recipient": zod.string()
+})
+
+
+export const MarkSendReplyParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const MarkSendReplyBody = zod.object({
+  "replyClass": zod.enum(['positive', 'neutral', 'negative', 'unsubscribe'])
+})
+
+export const MarkSendReplyResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const GetAlertSettingsResponse = zod.object({
+  "channels": zod.array(zod.object({
+  "key": zod.enum(['email', 'sms', 'trello', 'asana', 'clickup', 'webhook']),
+  "name": zod.string(),
+  "status": zod.string(),
+  "live": zod.boolean(),
+  "detail": zod.string()
+})),
+  "log": zod.array(zod.object({
+  "id": zod.string(),
+  "leadName": zod.string().nullable(),
+  "companyName": zod.string().nullable(),
+  "channel": zod.string(),
+  "status": zod.string(),
+  "error": zod.string().nullable(),
+  "score": zod.number().int().nullable(),
+  "test": zod.string().nullable(),
+  "createdAt": zod.string()
+}))
+})
+
+
+export const SendTestAlertBody = zod.object({
+  "channel": zod.enum(['email', 'sms', 'trello', 'asana', 'clickup', 'webhook'])
+})
+
+export const SendTestAlertResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const GetBillingResponse = zod.object({
+  "plan": zod.string(),
+  "priceUsd": zod.number(),
+  "includedClients": zod.number().int(),
+  "extraClientUsd": zod.number(),
+  "clients": zod.number().int(),
+  "extraClients": zod.number().int(),
+  "monthlyTotalUsd": zod.number(),
+  "draftsGenerated": zod.number().int(),
+  "simulationsRun": zod.number().int(),
+  "aiCalls": zod.number().int(),
+  "aiCostUsd": zod.number().nullable(),
+  "emailsSent": zod.number().int(),
+  "paymentLink": zod.string().nullable()
+})
+
+
+export const GetComplianceResponse = zod.object({
+  "rules": zod.array(zod.object({
+  "key": zod.string(),
+  "label": zod.string(),
+  "description": zod.string(),
+  "enabled": zod.boolean()
+})),
+  "freeMailDomains": zod.array(zod.string()),
+  "dailyCap": zod.number().int(),
+  "suppression": zod.array(zod.object({
+  "id": zod.string(),
+  "email": zod.string().nullable(),
+  "domain": zod.string().nullable(),
+  "reason": zod.string(),
+  "createdAt": zod.string()
+})),
+  "audit": zod.array(zod.object({
+  "id": zod.string(),
+  "action": zod.string(),
+  "target": zod.string(),
+  "actor": zod.string().nullable(),
+  "createdAt": zod.string()
+}))
+})
+
+
+export const addSuppressionBodyValueMax = 254;
+
+export const addSuppressionBodyReasonMax = 200;
+
+
+
+export const AddSuppressionBody = zod.object({
+  "value": zod.string().max(addSuppressionBodyValueMax),
+  "reason": zod.string().max(addSuppressionBodyReasonMax).optional()
+})
+
+export const AddSuppressionResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const RemoveSuppressionParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RemoveSuppressionResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const checkRecipientBodyEmailMax = 254;
+
+
+
+export const CheckRecipientBody = zod.object({
+  "email": zod.string().max(checkRecipientBodyEmailMax)
+})
+
+export const CheckRecipientResponse = zod.object({
+  "allowed": zod.boolean(),
+  "reasons": zod.array(zod.string())
+})
+
+
+export const GetReportResponse = zod.object({
+  "emailsSent": zod.number().int(),
+  "replies": zod.number().int(),
+  "positiveReplies": zod.number().int(),
+  "positivePer100": zod.number(),
+  "topSignals": zod.array(zod.object({
+  "name": zod.string(),
+  "count": zod.number().int()
+})),
+  "bestSubjects": zod.array(zod.object({
+  "name": zod.string(),
+  "count": zod.number().int()
+})),
+  "calibration": zod.array(zod.object({
+  "bucket": zod.string(),
+  "sends": zod.number().int(),
+  "replies": zod.number().int(),
+  "positive": zod.number().int(),
+  "replyRate": zod.number()
+}))
+})
+
+
+export const GetLandingInfoResponse = zod.object({
+  "bookDemoUrl": zod.string().nullable(),
+  "priceUsd": zod.number()
 })
 
 

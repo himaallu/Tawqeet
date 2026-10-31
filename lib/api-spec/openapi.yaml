@@ -454,6 +454,145 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Message" }
+  /review/queue:
+    get:
+      operationId: getReviewQueue
+      responses:
+        "200":
+          description: Ready and sent emails across demo leads
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReviewQueue" }
+  /review/drafts/{id}/send:
+    post:
+      operationId: approveAndSendDraft
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SendDraftInput" }
+      responses:
+        "200":
+          description: Sent to the demo recipient
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SendResult" }
+  /review/sends/{id}/reply:
+    post:
+      operationId: markSendReply
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReplyInput" }
+      responses:
+        "200":
+          description: Reply recorded and learning written
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /settings/alerts:
+    get:
+      operationId: getAlertSettings
+      responses:
+        "200":
+          description: Alert channels and log
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AlertSettings" }
+  /settings/alerts/test:
+    post:
+      operationId: sendTestAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TestAlertInput" }
+      responses:
+        "200":
+          description: Test alert attempted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /settings/billing:
+    get:
+      operationId: getBilling
+      responses:
+        "200":
+          description: Plan and usage
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Billing" }
+  /settings/compliance:
+    get:
+      operationId: getCompliance
+      responses:
+        "200":
+          description: Rules, suppression list and audit log
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Compliance" }
+  /settings/compliance/suppression:
+    post:
+      operationId: addSuppression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SuppressionInput" }
+      responses:
+        "200":
+          description: Added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /settings/compliance/suppression/{id}:
+    delete:
+      operationId: removeSuppression
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /settings/compliance/check:
+    post:
+      operationId: checkRecipient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RecipientCheckInput" }
+      responses:
+        "200":
+          description: Whether the address may be contacted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RecipientCheck" }
+  /reports:
+    get:
+      operationId: getReport
+      responses:
+        "200":
+          description: Client report and calibration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Report" }
+  /public/landing:
+    get:
+      operationId: getLandingInfo
+      responses:
+        "200":
+          description: Public landing configuration
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LandingInfo" }
 components:
   schemas:
     DemoStatus:
@@ -504,8 +643,9 @@ components:
         model: { type: string }
     DemoLead:
       type: object
-      required: [id, fullName, title, companyName, country, clientId, temperature, totalScore, signalPoints, stackingBonus, sample, language, signals, drafts]
+      required: [id, fullName, title, companyName, country, clientId, temperature, totalScore, signalPoints, stackingBonus, sample, language, legalBasis, signals, drafts]
       properties:
+        legalBasis: { type: string }
         id: { type: string }
         fullName: { type: string }
         title: { type: string }
@@ -806,3 +946,217 @@ components:
         ok: { type: boolean }
         required: { type: boolean }
         detail: { type: string }
+    ReviewItem:
+      type: object
+      required: [leadId, fullName, title, companyName, country, email, sample, legalBasis, temperature, totalScore, topSignal, winnerDraftId, subject, score, state, blockReason, send, drafts]
+      properties:
+        leadId: { type: string }
+        fullName: { type: string }
+        title: { type: string }
+        companyName: { type: string }
+        country: { type: string }
+        email: { type: string, nullable: true }
+        sample: { type: boolean }
+        legalBasis: { type: string }
+        temperature: { type: string, enum: [hot, warm, cold] }
+        totalScore: { type: integer }
+        topSignal: { type: string, nullable: true }
+        winnerDraftId: { type: string }
+        subject: { type: string }
+        score: { type: integer, nullable: true }
+        state: { type: string, enum: [ready, sent, blocked] }
+        blockReason: { type: string, nullable: true }
+        send:
+          allOf: [{ $ref: "#/components/schemas/SendRecord" }]
+          nullable: true
+        drafts:
+          type: array
+          items: { $ref: "#/components/schemas/DemoDraft" }
+    SendRecord:
+      type: object
+      required: [id, draftId, sentAt, recipient, replyClass, approvedBy]
+      properties:
+        id: { type: string }
+        draftId: { type: string }
+        sentAt: { type: string }
+        recipient: { type: string, nullable: true }
+        replyClass: { type: string, nullable: true }
+        approvedBy: { type: string, nullable: true }
+    ReviewQueue:
+      type: object
+      required: [items, recipient, dailyCap, sentToday]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ReviewItem" }
+        recipient: { type: string, nullable: true }
+        dailyCap: { type: integer }
+        sentToday: { type: integer }
+    SendDraftInput:
+      type: object
+      required: [subject, body]
+      properties:
+        subject: { type: string, maxLength: 200 }
+        body: { type: string, maxLength: 5000 }
+    SendResult:
+      type: object
+      required: [message, sendId, recipient]
+      properties:
+        message: { type: string }
+        sendId: { type: string }
+        recipient: { type: string }
+    ReplyInput:
+      type: object
+      required: [replyClass]
+      properties:
+        replyClass: { type: string, enum: [positive, neutral, negative, unsubscribe] }
+    AlertChannel:
+      type: object
+      required: [key, name, status, live, detail]
+      properties:
+        key: { type: string, enum: [email, sms, trello, asana, clickup, webhook] }
+        name: { type: string }
+        status: { type: string }
+        live: { type: boolean }
+        detail: { type: string }
+    AlertLogEntry:
+      type: object
+      required: [id, leadName, companyName, channel, status, error, score, test, createdAt]
+      properties:
+        id: { type: string }
+        leadName: { type: string, nullable: true }
+        companyName: { type: string, nullable: true }
+        channel: { type: string }
+        status: { type: string }
+        error: { type: string, nullable: true }
+        score: { type: integer, nullable: true }
+        test: { type: string, nullable: true }
+        createdAt: { type: string }
+    AlertSettings:
+      type: object
+      required: [channels, log]
+      properties:
+        channels:
+          type: array
+          items: { $ref: "#/components/schemas/AlertChannel" }
+        log:
+          type: array
+          items: { $ref: "#/components/schemas/AlertLogEntry" }
+    TestAlertInput:
+      type: object
+      required: [channel]
+      properties:
+        channel: { type: string, enum: [email, sms, trello, asana, clickup, webhook] }
+    Billing:
+      type: object
+      required: [plan, priceUsd, includedClients, extraClientUsd, clients, extraClients, monthlyTotalUsd, draftsGenerated, simulationsRun, aiCalls, aiCostUsd, emailsSent, paymentLink]
+      properties:
+        plan: { type: string }
+        priceUsd: { type: number }
+        includedClients: { type: integer }
+        extraClientUsd: { type: number }
+        clients: { type: integer }
+        extraClients: { type: integer }
+        monthlyTotalUsd: { type: number }
+        draftsGenerated: { type: integer }
+        simulationsRun: { type: integer }
+        aiCalls: { type: integer }
+        aiCostUsd: { type: number, nullable: true }
+        emailsSent: { type: integer }
+        paymentLink: { type: string, nullable: true }
+    ComplianceRule:
+      type: object
+      required: [key, label, description, enabled]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        description: { type: string }
+        enabled: { type: boolean }
+    SuppressionEntry:
+      type: object
+      required: [id, email, domain, reason, createdAt]
+      properties:
+        id: { type: string }
+        email: { type: string, nullable: true }
+        domain: { type: string, nullable: true }
+        reason: { type: string }
+        createdAt: { type: string }
+    AuditEntry:
+      type: object
+      required: [id, action, target, actor, createdAt]
+      properties:
+        id: { type: string }
+        action: { type: string }
+        target: { type: string }
+        actor: { type: string, nullable: true }
+        createdAt: { type: string }
+    Compliance:
+      type: object
+      required: [rules, freeMailDomains, dailyCap, suppression, audit]
+      properties:
+        rules:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceRule" }
+        freeMailDomains: { type: array, items: { type: string } }
+        dailyCap: { type: integer }
+        suppression:
+          type: array
+          items: { $ref: "#/components/schemas/SuppressionEntry" }
+        audit:
+          type: array
+          items: { $ref: "#/components/schemas/AuditEntry" }
+    SuppressionInput:
+      type: object
+      required: [value]
+      properties:
+        value: { type: string, maxLength: 254 }
+        reason: { type: string, maxLength: 200 }
+    RecipientCheckInput:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, maxLength: 254 }
+    RecipientCheck:
+      type: object
+      required: [allowed, reasons]
+      properties:
+        allowed: { type: boolean }
+        reasons: { type: array, items: { type: string } }
+    ReportBucket:
+      type: object
+      required: [bucket, sends, replies, positive, replyRate]
+      properties:
+        bucket: { type: string }
+        sends: { type: integer }
+        replies: { type: integer }
+        positive: { type: integer }
+        replyRate: { type: number }
+    ReportCount:
+      type: object
+      required: [name, count]
+      properties:
+        name: { type: string }
+        count: { type: integer }
+    Report:
+      type: object
+      required: [emailsSent, replies, positiveReplies, positivePer100, topSignals, bestSubjects, calibration]
+      properties:
+        emailsSent: { type: integer }
+        replies: { type: integer }
+        positiveReplies: { type: integer }
+        positivePer100: { type: number }
+        topSignals:
+          type: array
+          items: { $ref: "#/components/schemas/ReportCount" }
+        bestSubjects:
+          type: array
+          items: { $ref: "#/components/schemas/ReportCount" }
+        calibration:
+          type: array
+          items: { $ref: "#/components/schemas/ReportBucket" }
+    LandingInfo:
+      type: object
+      required: [bookDemoUrl, priceUsd]
+      properties:
+        bookDemoUrl: { type: string, nullable: true }
+        priceUsd: { type: number }
