@@ -5,6 +5,7 @@ import { addEvidence } from "./hiring";
 import { leadEvidence } from "../signals/scoring";
 import { writeDrafts, simulate, refreshGeminiSummaries } from "./writer";
 import { notifyHotLeads } from "../alerts";
+import { simulationLimitReached } from "../plan";
 
 const fixtures = [
   { name: "Autobia", country: "SA", vertical: "saas", domain: "autobia.sa", fit: 35, source: 0, keys: ["funding_round"], jobs: [1,2] },
@@ -109,6 +110,8 @@ export async function seedDemo(agencyId:string, stage:(s:string)=>void, warn:(s:
     const [lead]=await db.select().from(leads).where(eq(leads.id,id));
     const existing=await db.select().from(drafts).where(eq(drafts.leadId,id));
     stage(`Writing and simulating: ${lead!.fullName}`);
+    const limit=await simulationLimitReached(agencyId,3);
+    if(limit){warn(limit);return;}
     try {
       if(existing.length<3 || refresh.has(id)) await writeDrafts(agencyId,id,true,true);
       else for(const d of existing) if(!(d.sim as any)?.simulation) await simulate(agencyId,d.id);

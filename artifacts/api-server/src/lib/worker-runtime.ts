@@ -4,6 +4,7 @@ import { db, pool, sessions, magicLinks, authRateLimits, workerHeartbeat } from 
 import { logger } from "./logger";
 import { collectNews, watchPages, collectOcean, checkChampions } from "./signals/collectors";
 import { leadEvidence } from "./signals/scoring";
+import { sendDigestAllAgencies } from "./digests";
 import { sql } from "drizzle-orm";
 
 export async function runWorker(): Promise<void> {
@@ -27,6 +28,9 @@ export async function runWorker(): Promise<void> {
       await tx.execute(sql`select pg_advisory_xact_lock(842733)`);
       await leadEvidence(undefined, tx, true);
     })],
+    // UAE workweek is Monday–Friday; Monday is the first workday.
+    ["alerts-warm-digest", "30 8 * * 1-5", () => sendDigestAllAgencies("warm")],
+    ["alerts-cold-weekly", "30 8 * * 1", () => sendDigestAllAgencies("cold")],
   ] as const;
   for (const [name, cron, handler] of jobs) {
     await boss.createQueue(name, { retryLimit: 2, retryDelay: 300 });
@@ -37,7 +41,7 @@ export async function runWorker(): Promise<void> {
     .onConflictDoUpdate({ target: workerHeartbeat.id, set: { seenAt: new Date() } });
   await beat();
   const timer = setInterval(() => { void beat().catch(() => logger.error("Worker heartbeat failed")); }, 30_000);
-  logger.info("Tawqeet worker ready: authentication maintenance, signal collectors and hourly decay. No sending worker.");
+  logger.info("Tawqeet worker ready: authentication maintenance, signal collectors, hourly decay and alert digests.");
   let stopping = false;
   const stop = async () => {
     if (stopping) return;

@@ -7,6 +7,10 @@
  */
 
 export interface SendRecord {
+  /** @nullable */
+  deliveryEvent: string | null;
+  /** @nullable */
+  abArm: string | null;
   id: string;
   draftId: string;
   sentAt: string;
