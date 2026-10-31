@@ -39,16 +39,17 @@ export default function LoginPage({ loginConfigured }: { loginConfigured: boolea
           <h1 className="font-display text-5xl xl:text-6xl leading-[1.02] mt-4">The right message, at the right <em className="text-sidebar-primary not-italic">moment</em>.</h1>
           <p className="mt-6 text-sidebar-foreground/70 leading-relaxed">A private workspace for GCC outbound agencies. Start with what matters: who each client is, who they sell to, and what they must never claim.</p>
         </div>
-        <div className="relative font-mono text-[11px] text-sidebar-foreground/45">Foundation release · client profiles</div>
+        <div className="relative font-mono text-[11px] text-sidebar-foreground/45">Foundation release · client profiles · <a href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/welcome`} className="underline hover:text-sidebar-foreground">About Tawqeet</a></div>
       </section>
 
       <section className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm rise">
           <div className="lg:hidden mb-10"><Wordmark /></div>
+          <a href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/welcome`} className="mb-6 inline-block text-sm text-accent hover:underline" data-testid="link-welcome">What is Tawqeet? →</a>
           {demoOn && (
             <div className="rise" data-testid="panel-demo-login">
               <h2 className="font-display text-3xl">Demo workspace</h2>
-              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">This is a shared demo workspace. Unverified contacts are labeled as samples, and no outreach emails are sent. Anyone with the demo sign-in sees the same data.</p>
+              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">This is a shared demo workspace. Unverified contacts are labeled as samples, and approved emails go only to the demo recipient, never to leads. Anyone with the demo sign-in sees the same data.</p>
               {demoLogin.isError && <p role="alert" className="mt-3 text-sm text-destructive flex gap-2"><AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />{apiErrorMessage(demoLogin.error, "Demo sign-in failed.")}</p>}
               <Button className="mt-6 w-full h-11 bg-accent text-accent-foreground hover:bg-accent/90" disabled={demoLogin.isPending} data-testid="button-demo-login"
                 onClick={() => demoLogin.mutate(undefined, { onSuccess: () => window.location.reload() })}>
