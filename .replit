@@ -1,12 +1,14 @@
-modules = ["nodejs-24", "python-base-3.13", "postgresql-16"]
+modules = ["nodejs-22", "postgresql-16"]
+run = "npm run dev"
 
 [deployment]
-router = "application"
-deploymentTarget = "autoscale"
+deploymentTarget = "vm"
+build = ["npm", "run", "build"]
+run = ["sh", "-c", "npm run db:migrate && npm start"]
 
-[deployment.postBuild]
-args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
+[[ports]]
+localPort = 5000
+externalPort = 80
 
 [workflows]
 runButton = "Project"
@@ -18,34 +20,36 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Tawqeet Worker"
+args = "Web"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Worker"
 
 [[workflows.workflow]]
-name = "Tawqeet Worker"
+name = "Web"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm run worker"
+args = "npm run dev"
+waitForPort = 5000
 
-[workflows.workflow.metadata]
-outputType = "console"
+[[workflows.workflow]]
+name = "Worker"
+author = "agent"
 
-[agent]
-stack = "PNPM_WORKSPACE"
-expertMode = true
-
-[postMerge]
-path = "scripts/post-merge.sh"
-timeoutMs = 20000
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run worker"
 
 [userenv]
 
 [userenv.shared]
-OWNER_EMAIL = "alluhimasri@gmail.com"
-RESEND_FROM_EMAIL = "auth@tuezdayai.com"
-AI_MODEL = "claude-sonnet-4-5"
+ADMIN_EMAILS = "alluhimasri@gmail.com"
+EMAIL_FROM = "auth@tuezdayai.com"
 AI_PROVIDER = "anthropic"
+AI_MODEL = "claude-sonnet-4-5"
 
 [nix]
 channel = "stable-25_05"
